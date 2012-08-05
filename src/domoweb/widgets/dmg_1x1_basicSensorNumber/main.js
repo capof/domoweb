@@ -162,7 +162,7 @@
         
         show_graph: function(type, shift) {
             var self = this, o = this.options;
-            chart.highcharts.reset();
+            chart.engine.reset();
             $('#dialog-nav button').attr('disabled', 'disabled');
             $('#dialog-nav button.active').removeClass('active');
             $('#dialog-nav li.bt' + type + ' button').addClass('active');
@@ -175,7 +175,7 @@
                     self.show_graph(type, shift-1);
                 });
             }
-            chart.highcharts.show({
+            chart.engine.show({
                 device_id: o.deviceid,
                 key: o.key,
                 name: o.featurename,
