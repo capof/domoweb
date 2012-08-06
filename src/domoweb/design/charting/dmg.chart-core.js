@@ -52,7 +52,6 @@
                     break;
                 case '7d':
                     restparams = ['api', 'state', 'from', Math.round(self.from.getTime() / 1000), 'to', Math.round(self.to.getTime() / 1000),'interval', 'hour', 'selector', 'avg', o.device_id, o.key];
-
                     break;
                 case 'month':
                     restparams = ['api', 'state', 'from', Math.round(self.from.getTime() / 1000), 'to', Math.round(self.to.getTime() / 1000),'interval', 'day', 'selector', 'avg', o.device_id, o.key];

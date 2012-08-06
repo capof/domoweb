@@ -2,32 +2,59 @@ var ChartRickshaw = ChartCore.extend({
         show: function(options) {
             this._super(options);
             var self = this, o = this.options;
-
-/*            graph_options = this._init_graph['_'+o.type](graph_options, o, this.from, this.to);*/
-
-            return this.getdata() // Get the data from RINOR
-                .done(function(values, min, max, avg){
-                    var data = self._process_data['_'+o.type](values);
-                    console.log(data);
-                                var graph_options = {
-                element: document.querySelector("#dialog-graph"),
-                width: 580,
-                height: 250,
-                series: []
-            };
-                    graph_options.series.push({
-                        color: 'steelblue',
-                        data: data
+            if (this.graph) {
+                return this.getdata() // Get the data from RINOR
+                    .done(function(values, min, max, avg){
+                        var data = self._process_data['_'+o.type](values);
+                        self.series.length = 0;
+                        self.series.push({
+                            name: o.title,
+                            color: 'lightblue',
+                            data: data
+                            });
+                        self.graph.update();
+                    });
+            } else {
+                this.series = []
+                this.graph_options = {
+                    element: document.querySelector("#dialog-graph"),
+                    renderer: 'area',
+                    stroke: true,
+                    series: this.series,
+                };
+    
+                return this.getdata() // Get the data from RINOR
+                    .done(function(values, min, max, avg){
+                        var data = self._process_data['_'+o.type](values);
+                        self.series.push({
+                            name: o.title,
+                            color: 'lightblue',
+                            data: data
+                            });
+                        self.graph = new Rickshaw.Graph(self.graph_options);
+                        self.graph_options = self._init_graph['_'+o.type](self.graph_options, o, self.from, this.to);
+    
+                        self.hoverDetail = new Rickshaw.Graph.HoverDetail({
+                            graph: self.graph,
+                            xFormatter: function(x) { var d = new Date(x*1000); return d.toString("H:m"); },
+                            yFormatter: function(y) { return y + " " + o.unit; }
                         });
-                    this.graph = new Rickshaw.Graph(graph_options);
-                    var axes = new Rickshaw.Graph.Axis.Time( { graph: this.graph } );
-
-                        this.graph.render();
-                }); 
+                        
+                        var xAxis = new Rickshaw.Graph.Axis.Time({
+                            graph: self.graph,
+                        });
+              
+                        var yAxis = new Rickshaw.Graph.Axis.Y({
+                            graph: self.graph,
+                        });
+    
+                        self.graph.render();
+                    });                 
+            }
         },
         
         reset: function() {
-            if (this.graph) this.graph.destroy();
+/*            if (this.graph) this.graph.destroy();*/
         },
         
         _init_graph: {
@@ -45,15 +72,8 @@ var ChartRickshaw = ChartCore.extend({
             },
 
             _24h: function(graph_options, o, from, to) {
-                graph_options.title.text = Highcharts.dateFormat('%A %d %B %Y', to.getTime());
-                graph_options.xAxis.min = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(),from.getHours(),0,0);
-                graph_options.xAxis.max = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(),to.getHours(),0,0);
-                graph_options.xAxis.dateTimeLabelFormats = {hour: '%H:%M'};
-                graph_options.xAxis.tickInterval = null;
-                graph_options.tooltip.formatter = function() {
-                    return Highcharts.dateFormat('%d/%m/%Y %Hh%M', this.x) +'<br/>'
-                        + "<strong>" + Highcharts.numberFormat(this.y, 2, ',') +" " + o.unit + "</strong>";
-                    };
+                var self = this;
+
                 return graph_options;
             },
 
@@ -117,21 +137,21 @@ var ChartRickshaw = ChartCore.extend({
             _7d: function(values) {
                 var d = [];
                 $.each(values, function(index, stat) {
-                    d.push({x:(Date.UTC(stat[0], stat[1]-1, stat[3], stat[4], 0, 0/ 1000)), y:stat[5]});
+                    d.push({x:(Date.UTC(stat[0], stat[1]-1, stat[3], stat[4], 0, 0)/ 1000), y:stat[5]});
                 });
                 return d;
             },
             _month: function(values) {
                 var d = [];
                 $.each(values, function(index, stat) {
-                    d.push({x:Date.UTC(stat[0], stat[1]-1, stat[3], 0, 0, 0), y:stat[4]});
+                    d.push({x:(Date.UTC(stat[0], stat[1]-1, stat[3], 0, 0, 0)/ 1000), y:stat[4]});
                 });
                 return d;
             },
             _year: function(values) {
                 var d = [];
                 $.each(values, function(index, stat) {
-                    d.push({x:Date.UTC(stat[0], stat[1]-1, stat[3], 0, 0, 0), y:stat[4]});
+                    d.push({x:(Date.UTC(stat[0], stat[1]-1, stat[3], 0, 0, 0)/ 1000), y:stat[4]});
                 });
                 return d;
             }
