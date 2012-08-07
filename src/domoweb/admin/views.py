@@ -50,7 +50,7 @@ from django.conf import settings
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
-from domoweb.models import Parameter, Widget, PageIcon, WidgetInstance, PageTheme, Page
+from domoweb.models import Parameter, Widget, PageIcon, WidgetInstance, PageTheme, Page, GraphEngine, GraphEngineCSS, GraphEngineJS
 
 def login(request):
     """
@@ -353,7 +353,19 @@ class PageThemeTable(tables.Table):
 class PageTable(tables.Table):
     class Meta:
         model = Page
-        
+
+class GraphEngineTable(tables.Table):
+    class Meta:
+        model = GraphEngine
+
+class GraphEngineCSSTable(tables.Table):
+    class Meta:
+        model = GraphEngineCSS
+
+class GraphEngineJSTable(tables.Table):
+    class Meta:
+        model = GraphEngineJS
+
 @admin_required
 def admin_core_domowebdata(request):
     """
@@ -370,6 +382,9 @@ def admin_core_domowebdata(request):
     widgetinstance_table = WidgetInstanceTable(WidgetInstance.objects.all())
     pagetheme_table = PageThemeTable(PageTheme.objects.all())
     page_table = PageTable(Page.objects.all())
+    graphengine_table = GraphEngineTable(GraphEngine.objects.all())
+    graphenginecss_table = GraphEngineCSSTable(GraphEngineCSS.objects.all())
+    graphenginejs_table = GraphEngineJSTable(GraphEngineJS.objects.all())
     
     return go_to_page(
         request, 'core/domowebdata.html',
@@ -382,6 +397,9 @@ def admin_core_domowebdata(request):
         widgetinstance_table = widgetinstance_table,
         pagetheme_table = pagetheme_table,
         page_table = page_table,
+        graphengine_table = graphengine_table,
+        graphenginecss_table = graphenginecss_table,
+        graphenginejs_table = graphenginejs_table,
     )
     
 @admin_required

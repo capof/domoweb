@@ -1,0 +1,23 @@
+{
+    "json_version": 1,
+    "identity": {
+        "type": "dmg_graph_engine",
+        "id": "rickshaw",
+        "version": 1,
+        "name": "Rickshaw",
+        "description": "http://code.shutterstock.com/rickshaw/",
+        "creator": "Ferllings",
+        "creator_email": "cedric@domogik.org"
+    },
+    "files": {
+        "js": [
+            { "src": "dmg.rickshaw.js" },
+            { "src": "lib/vendor/d3.min.js" },
+            { "src": "lib/vendor/d3.layout.min.js" },
+            { "src": "lib/rickshaw.min.js" }
+        ],
+        "css": [
+            { "src": "lib/rickshaw.min.css", "media": "screen"}
+        ]
+    }
+}

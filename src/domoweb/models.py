@@ -28,3 +28,18 @@ class Page(models.Model):
 class PageTheme(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     label = models.CharField(max_length=50)
+
+class GraphEngine(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    label = models.CharField(max_length=50)
+
+class GraphEngineCSS(models.Model):
+    id = models.AutoField(primary_key=True)
+    graphengine = models.ForeignKey(GraphEngine)
+    src = models.CharField(max_length=255)
+    media = models.CharField(max_length=50)
+
+class GraphEngineJS(models.Model):
+    id = models.AutoField(primary_key=True)
+    graphengine = models.ForeignKey(GraphEngine)
+    src = models.CharField(max_length=255)

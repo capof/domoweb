@@ -68,4 +68,11 @@
         <h2>Page table</h2>
         {% render_table page_table "core/table.html" %}
     </section>
+    <section class="subsection">
+        <h2>Graph Engine tables</h2>
+        {% render_table graphengine_table "core/table.html" %}
+        {% render_table graphenginecss_table "core/table.html" %}
+        {% render_table graphenginejs_table "core/table.html" %}
+    </section>
+
 {% endblock %}

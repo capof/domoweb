@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.utils import translation
 from httplib import BadStatusLine
-from domoweb.models import Parameter, Widget, PageIcon, PageTheme
+from domoweb.models import Parameter, Widget, PageIcon, PageTheme, GraphEngine, GraphEngineCSS, GraphEngineJS
 from domoweb.rinor.pipes import InfoPipe
 import os
 import simplejson
@@ -146,4 +146,28 @@ class LaunchMiddleware:
                         t = PageTheme(id=theme_id, label=theme_name)
                         t.save()
 
+        # List available graph engines
+        GraphEngine.objects.all().delete()
+        GraphEngineCSS.objects.all().delete()
+        GraphEngineJS.objects.all().delete()
+        STATIC_GRAPHENGINES_ROOT = os.environ['DOMOWEB_STATIC_GRAPHENGINES']
+        print STATIC_GRAPHENGINES_ROOT
+        if os.path.isdir(STATIC_GRAPHENGINES_ROOT):
+            for file in os.listdir(STATIC_GRAPHENGINES_ROOT):
+                if not file.startswith('.'): # not hidden file
+                    info = os.path.join(STATIC_GRAPHENGINES_ROOT, file, "info.json")
+                    if os.path.isfile(main):
+                        data_file = open(info, "r")
+                        data_json = simplejson.load(data_file)
+                        identity_id = data_json["identity"]["id"]
+                        identity_name = data_json["identity"]["name"]
+                        g = GraphEngine(id=identity_id, label=identity_name)
+                        g.save()
+                        for file_css in data_json["files"]["css"]:
+                            f = GraphEngineCSS(graphengine=g, src=file_css["src"], media=file_css["media"])
+                            f.save()
+                        for file_js in data_json["files"]["js"]:
+                            f = GraphEngineJS(graphengine=g, src=file_js["src"])
+                            f.save()
+                            
         raise MiddlewareNotUsed

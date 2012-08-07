@@ -41,7 +41,7 @@ from django.utils.translation import ugettext as _
 from django import forms
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
-from domoweb.models import Widget, PageIcon, WidgetInstance, PageTheme
+from domoweb.models import Widget, PageIcon, WidgetInstance, PageTheme, GraphEngine, GraphEngineCSS, GraphEngineJS
 from domoweb import fields
     
 class ThemeChoiceField(forms.ModelChoiceField):
@@ -78,6 +78,9 @@ def page(request, id=1):
     widgets = WidgetInstance.objects.filter(page_id=id).values('widget_id').distinct()
     widgetinstances = WidgetInstancePipe().get_page_list(id)
 
+    graphengine_cssfiles = GraphEngineCSS.objects.filter(graphengine__id__exact='rickshaw')
+    graphengine_jsfiles = GraphEngineJS.objects.filter(graphengine__id__exact='rickshaw')
+
     usageDict = DeviceUsagePipe().get_dict()
     typeDict = DeviceTypePipe().get_dict()
 
@@ -92,6 +95,8 @@ def page(request, id=1):
         page_tree=page_tree,
         iconsets=iconsets,
         widgetinstances=widgetinstances,
+        graphengine_cssfiles=graphengine_cssfiles,
+        graphengine_jsfiles=graphengine_jsfiles,
     )
 
 @admin_required

@@ -65,7 +65,6 @@
     <link href="/design/common/css/ui-buttons.css" rel="stylesheet" type="text/css" />
     <link href="/design/common/css/ui-dialog.css" rel="stylesheet" type="text/css" />
     <link href="/design/view/css/view-page.css" rel="stylesheet" type="text/css" />
-    <link href="/design/libraries/rickshaw/rickshaw.min.css" rel="stylesheet" type="text/css" />
     
     {% if page.theme_id %}
     <link href="/themes/{{ page.theme_id }}/view-page.css" rel="stylesheet" type="text/css" />
@@ -85,6 +84,10 @@
     <link href="/widgets/{{ widget.widget_id }}/style.css" rel="stylesheet" type="text/css" />
     {% endfor %}
 
+	{% for cssfile in graphengine_cssfiles %}
+    <link href="/graphengines/{{ cssfile.graphengine.id }}/{{ cssfile.src }}" rel="stylesheet" type="text/css" />
+    {% endfor %}
+
 {% endblock %}
 
 {% block js_include %}
@@ -92,9 +95,6 @@
     <script type="text/javascript" src="/design/libraries/jquery.ui.subclass/jquery.ui.subclass.js"></script>
     <script type="text/javascript" src="/design/libraries/jquery.timers-1.2/jquery.timers-1.2.js"></script>
     <script type="text/javascript" src="/design/libraries/jquery.ba-dotimeout-1.0/jquery.ba-dotimeout.min.js"></script>
-    <script type="text/javascript" src="/design/libraries/rickshaw/vendor/d3.min.js"></script>
-    <script type="text/javascript" src="/design/libraries/rickshaw/vendor/d3.layout.min.js"></script>
-    <script type="text/javascript" src="/design/libraries/rickshaw/rickshaw.min.js"></script>
     <script type="text/javascript" src="/design/libraries/datejs/date.js"></script>
     <script type="text/javascript" src="/design/libraries/jquery.longclick-0.3.3/jquery.longclick-0.3.3.min.js"></script>
     <script type="text/javascript" src="/design/libraries/jquery.transform/jquery.transform.js"></script>
@@ -106,10 +106,13 @@
     <script type="text/javascript" src="/design/common/js/dmg.widget-utils.js"></script>
     <script type="text/javascript" src="/widgets/dmg_4x3_colorPicker/farbtastic.js"></script>
     <script type="text/javascript" src="/design/charting/dmg.chart-core.js"></script>
-    <script type="text/javascript" src="/design/charting/dmg.rickshaw.js"></script>
 
     {% for widget in widgets %}
     <script type="text/javascript" src="/widgets/{{ widget.widget_id }}/main.js"></script>	
+    {% endfor %}
+
+	{% for jsfile in graphengine_jsfiles %}
+    <script type="text/javascript" src="/graphengines/{{ jsfile.graphengine.id }}/{{ jsfile.src }}"></script>	
     {% endfor %}
 
     <script type="text/javascript" src="/design/view/js/view-page.js"></script>
