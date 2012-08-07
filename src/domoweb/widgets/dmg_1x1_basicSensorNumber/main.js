@@ -157,12 +157,17 @@
                 }
             });
             day.find('button').focus();
+			chart.engine.setup({
+                device_id: o.deviceid,
+                key: o.key,
+                name: o.featurename,
+                unit: o.model_parameters.unit,
+            });
             this.show_graph('24h', 0);
         },
         
         show_graph: function(type, shift) {
             var self = this, o = this.options;
-            chart.engine.reset();
             $('#dialog-nav button').attr('disabled', 'disabled');
             $('#dialog-nav button.active').removeClass('active');
             $('#dialog-nav li.bt' + type + ' button').addClass('active');
@@ -176,10 +181,6 @@
                 });
             }
             chart.engine.show({
-                device_id: o.deviceid,
-                key: o.key,
-                name: o.featurename,
-                unit: o.model_parameters.unit,
                 type: type,
                 shift: shift
             }).always(function(){

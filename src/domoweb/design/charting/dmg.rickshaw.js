@@ -1,40 +1,34 @@
 var ChartRickshaw = ChartCore.extend({
-        show: function(options) {
+        setup: function(options) {
             this._super(options);
             var self = this, o = this.options;
-            if (this.graph) {
-                return this.getdata() // Get the data from RINOR
-                    .done(function(values, min, max, avg){
-                        var data = self._process_data['_'+o.type](values);
-                        self.series.length = 0;
-                        self.series.push({
-                            name: o.title,
-                            color: 'lightblue',
-                            data: data
-                            });
+            this.series = []
+            this.graph_options = {
+                element: document.querySelector("#dialog-graph"),
+                renderer: 'area',
+                stroke: true,
+                series: this.series,
+            };
+        },
+        
+        show: function(params) {
+            this._super(params);
+            var self = this, o = this.options;
+            return this.getdata(params.type) // Get the data from RINOR
+                .done(function(values, min, max, avg){
+                    var data = self._process_data['_'+params.type](values);
+                    self.series.length = 0;
+                    self.series.push({
+                        name: o.title,
+                        color: 'lightblue',
+                        data: data
+                        });
+                    if (self.graph) {
                         self.graph.update();
-                    });
-            } else {
-                this.series = []
-                this.graph_options = {
-                    element: document.querySelector("#dialog-graph"),
-                    renderer: 'area',
-                    stroke: true,
-                    series: this.series,
-                };
-    
-                return this.getdata() // Get the data from RINOR
-                    .done(function(values, min, max, avg){
-                        var data = self._process_data['_'+o.type](values);
-                        self.series.push({
-                            name: o.title,
-                            color: 'lightblue',
-                            data: data
-                            });
+                    } else {
                         self.graph = new Rickshaw.Graph(self.graph_options);
-                        self.graph_options = self._init_graph['_'+o.type](self.graph_options, o, self.from, this.to);
-    
-                        self.hoverDetail = new Rickshaw.Graph.HoverDetail({
+            
+                        var hoverDetail = new Rickshaw.Graph.HoverDetail({
                             graph: self.graph,
                             xFormatter: function(x) { var d = new Date(x*1000); return d.toString("H:m"); },
                             yFormatter: function(y) { return y + " " + o.unit; }
@@ -47,16 +41,11 @@ var ChartRickshaw = ChartCore.extend({
                         var yAxis = new Rickshaw.Graph.Axis.Y({
                             graph: self.graph,
                         });
-    
                         self.graph.render();
-                    });                 
-            }
+                    }
+                });
         },
-        
-        reset: function() {
-/*            if (this.graph) this.graph.destroy();*/
-        },
-        
+
         _init_graph: {
             _8h: function(graph_options, o, from, to) {
                 graph_options.title.text = Highcharts.dateFormat('%A %d %B %Y', to.getTime());
