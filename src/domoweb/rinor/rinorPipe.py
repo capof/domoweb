@@ -2,6 +2,7 @@ import urllib
 import urllib2
 from django.core.cache import cache
 from django.utils import simplejson
+from django.utils.encoding import smart_str
 from domoweb.models import Parameter
 from domoweb.exceptions import RinorNotConfigured, RinorNotAvailable, RinorError
 from httplib import BadStatusLine
