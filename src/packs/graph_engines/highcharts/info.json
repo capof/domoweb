@@ -1,0 +1,21 @@
+{
+    "json_version": 1,
+    "identity": {
+        "type": "dmg_graph_engine",
+        "id": "highcharts",
+        "version": 1,
+        "name": "Highcharts",
+        "description": "http://www.highcharts.com/products/highcharts",
+        "creator": "Ferllings",
+        "creator_email": "cedric@domogik.org"
+    },
+    "files": {
+        "js": [
+            { "src": "main.js" },
+            { "src": "lib/highcharts-2.1.9.js" },
+            { "src": "lib/highcharts-exporting-2.1.9.js" }
+        ],
+        "css": [
+        ]
+    }
+}

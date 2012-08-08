@@ -1,8 +1,8 @@
 var ChartHighcharts = ChartCore.extend({
-        show: function(options) {
+        setup: function(options) {
             this._super(options);
             var self = this, o = this.options;
-            var graph_options = {
+            this.graph_options = {
                 chart: {
                    renderTo: 'dialog-graph',
                    borderRadius: null,
@@ -45,13 +45,21 @@ var ChartHighcharts = ChartCore.extend({
                     }
                 }
             };
-            graph_options = this._init_graph['_'+o.type](graph_options, o, this.from, this.to);
+        },
+        
+        show: function(params) {
+            this._super(params);
+            var self = this, o = this.options;
 
-            this.graph = new Highcharts.Chart(graph_options);
+            self.graph_options = this._init_graph['_'+params.type](self.graph_options, o, this.from, this.to);
+
+            if (this.graph) this.graph.destroy();
+
+            this.graph = new Highcharts.Chart(self.graph_options);
             this.graph.showLoading();
-            return this.getdata() // Get the data from RINOR
+            return this.getdata(params.type) // Get the data from RINOR
                 .done(function(values, min, max, avg){
-                    var data = self._process_data['_'+o.type](values);
+                    var data = self._process_data['_'+params.type](values);
 
                     self.graph.yAxis[0].addPlotLine({
                         value: avg,
@@ -87,11 +95,7 @@ var ChartHighcharts = ChartCore.extend({
                     self.graph.hideLoading();
                 }); 
         },
-        
-        reset: function() {
-            if (this.graph) this.graph.destroy();
-        },
-        
+
         _init_graph: {
             _8h: function(graph_options, o, from, to) {
                 graph_options.title.text = Highcharts.dateFormat('%A %d %B %Y', to.getTime());
@@ -199,4 +203,4 @@ var ChartHighcharts = ChartCore.extend({
             }
         }
 });
-chart.highcharts = new ChartHighcharts();
+chart.engine = new ChartHighcharts();

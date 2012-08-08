@@ -78,8 +78,8 @@ def page(request, id=1):
     widgets = WidgetInstance.objects.filter(page_id=id).values('widget_id').distinct()
     widgetinstances = WidgetInstancePipe().get_page_list(id)
 
-    graphengine_cssfiles = GraphEngineCSS.objects.filter(graphengine__id__exact='rickshaw')
-    graphengine_jsfiles = GraphEngineJS.objects.filter(graphengine__id__exact='rickshaw')
+    graphengine_cssfiles = GraphEngineCSS.objects.filter(graphengine__id__exact='highcharts')
+    graphengine_jsfiles = GraphEngineJS.objects.filter(graphengine__id__exact='highcharts')
 
     usageDict = DeviceUsagePipe().get_dict()
     typeDict = DeviceTypePipe().get_dict()
