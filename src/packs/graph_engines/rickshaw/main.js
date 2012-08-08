@@ -46,66 +46,6 @@ var ChartRickshaw = ChartCore.extend({
                 });
         },
 
-        _init_graph: {
-            _8h: function(graph_options, o, from, to) {
-                graph_options.title.text = Highcharts.dateFormat('%A %d %B %Y', to.getTime());
-                graph_options.xAxis.min = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(),from.getHours(),0,0);
-                graph_options.xAxis.max = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(),to.getHours(),0,0);
-                graph_options.xAxis.dateTimeLabelFormats = {hour: '%H:%M'};
-                graph_options.xAxis.tickInterval = null;
-                graph_options.tooltip.formatter = function() {
-                    return Highcharts.dateFormat('%d/%m/%Y %Hh%M', this.x) +'<br/>'
-                        + "<strong>" + Highcharts.numberFormat(this.y, 2, ',') +" " + o.unit + "</strong>";
-                    };
-                return graph_options;
-            },
-
-            _24h: function(graph_options, o, from, to) {
-                var self = this;
-
-                return graph_options;
-            },
-
-            _7d: function(graph_options, o, from, to) {
-                graph_options.title.text = Highcharts.dateFormat('%d/%m/%Y', from.getTime()) + " - " + Highcharts.dateFormat('%d/%m/%Y', to.getTime());
-                graph_options.xAxis.min = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(), from.getHours(),0,0);
-                graph_options.xAxis.max = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), to.getHours()+1,0,0);
-                graph_options.xAxis.dateTimeLabelFormats = {day: '%A %e'};
-                graph_options.xAxis.tickInterval = 24 * 3600 * 1000; // a day
-                graph_options.tooltip.formatter = function() {
-                    return Highcharts.dateFormat('%d/%m/%Y %Hh', this.x) +'<br/>'
-                        + "<strong>" + Highcharts.numberFormat(this.y, 2, ',') +" " + o.unit + "</strong>";
-                    };
-                return graph_options;
-            },
-
-            _month: function(graph_options, o, from, to) {
-                graph_options.title.text = Highcharts.dateFormat('%B %Y', to.getTime())
-                graph_options.xAxis.min = Date.UTC(from.getFullYear(), from.getMonth(), 1);
-                graph_options.xAxis.max = Date.UTC(to.getFullYear(), to.getMonth(), 31, 23,59,59);
-                graph_options.xAxis.dateTimeLabelFormats = {day: '%e. %b'};
-                graph_options.xAxis.tickInterval = null;
-                graph_options.tooltip.formatter = function() {
-                    return Highcharts.dateFormat('%d/%m/%Y', this.x) +'<br/>'
-                        + "<strong>" + Highcharts.numberFormat(this.y, 2, ',') +" " + o.unit + "</strong>";
-                    };
-                return graph_options;
-            },
-
-            _year: function(graph_options, o, from, to) {
-                graph_options.title.text = Highcharts.dateFormat('%Y', to.getTime())
-                graph_options.xAxis.min = Date.UTC(from.getFullYear(), 0, 1);
-                graph_options.xAxis.max = Date.UTC(to.getFullYear(), 11, 31, 23,59,59);
-                graph_options.xAxis.dateTimeLabelFormats = {month: '%b %y'};
-                graph_options.xAxis.tickInterval = null;
-                graph_options.tooltip.formatter = function() {
-                    return Highcharts.dateFormat('%d/%m/%Y', this.x) +'<br/>'
-                        + "<strong>" + Highcharts.numberFormat(this.y, 2, ',') +" " + o.unit + "</strong>";
-                    };
-                return graph_options;
-            }
-        },
-
         // Used to pre-process data before displaying
         _process_data: {
             _8h: function(values) {

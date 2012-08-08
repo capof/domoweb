@@ -1,0 +1,24 @@
+{
+    "json_version": 1,
+    "identity": {
+        "type": "dmg_graph_engine",
+        "id": "nvd3",
+        "version": 1,
+        "name": "NVD3",
+        "description": "http://nvd3.com/",
+        "creator": "Ferllings",
+        "creator_email": "cedric@domogik.org"
+    },
+    "files": {
+        "js": [
+            { "src": "main.js" },
+            { "src": "lib/lib/d3.v2.js" },
+            { "src": "lib/nv.d3.js" },
+            { "src": "lib/src/models/legend.js" },
+            { "src": "lib/src/models/line.js" }
+        ],
+        "css": [
+            { "src": "lib/src/nv.d3.css", "media": "screen"}
+        ]
+    }
+}
