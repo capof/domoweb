@@ -349,9 +349,21 @@ class StatePipe(RinorPipe):
         if _data.status == "ERROR":
             raise RinorError(_data.code, _data.description)        
         if len(_data[self.index]) > 0:
+#            values = []
+#            for value in _data[self.index][0]['values']:
+#                print value
+#                time = {
+#                    'minute': lambda value: datetime.datetime(int(value[0]), int(value[1]), int(value[3]), int(value[4]), int(value[5])),
+#                    'hour': lambda value: datetime.datetime(int(value[0]), int(value[1]), int(value[3]), int(value[4])),
+#                    'day': lambda value: datetime.datetime(int(value[0]), int(value[1]), int(value[3]))
+#                }[interval](value)
+#                values.append(time.strftime("%s"))
+                
+#            _data[self.index][0]['values'] = values
             return _data[self.index][0]
         else:
             return None
+        
 
 class UserPipe(RinorPipe):
     cache_expiry = 3600
