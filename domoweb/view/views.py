@@ -133,7 +133,7 @@ def page_configuration(request, id):
         iconsets=iconsets
     )
 
-@admin_required
+#@admin_required
 def page_elements(request, id):
     """
     Method called when a ui page widgets is accessed
@@ -156,16 +156,16 @@ def page_elements(request, id):
                 w.save()
         return redirect('page_view', id=id) # Redirect after POST
 
-    devices = DeviceExtendedPipe().get_list()
+#    devices = DeviceExtendedPipe().get_list()
     widgets = Widget.objects.all()
-    widgetinstances = WidgetInstancePipe().get_page_list(id)
+    widgetinstances = WidgetInstance.objects.filter(page_id=id)
     
     return go_to_page(
         request, 'elements.html',
         page_title,
         page=page,
         iconsets=iconsets,
-        devices=devices,
+#        devices=devices,
         widgets=widgets,
         widgetinstances=widgetinstances,
     )
