@@ -47,7 +47,10 @@
                         $.notification('error', "{% trans "Widget not deleted" %} (" + jqXHR.responseText + ")");
                 });
 	});
+        $(document).on('click', '.conf_widget', function (e) {
+            widget_id = $(this).attr('widget-id');
 
+	});
         $('.add_widget').click(function (e) {
             widget_id = $(this).attr('widget-id');
             rinor.post(['api', 'widgetinstance'], {'page_id': {{ page.id }}, 'widget_id': widget_id})
@@ -100,7 +103,7 @@
     <section role='main'>
         <ul id='widgetinstances'>
         {% for instance in widgetinstances %}
-            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
+            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <button widget-id='{{ instance.id }}' class='conf_widget'>configure</button><button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
         {% endfor %}
         </ul>
         <button id='show_widgets'>Add widget</button>

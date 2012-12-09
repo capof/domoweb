@@ -147,3 +147,9 @@ class WidgetInstance(models.Model):
     id = models.AutoField(primary_key=True)
     page = models.ForeignKey(Page)
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
+
+class WidgetInstanceParameter(models.Model):
+    id = models.AutoField(primary_key=True)
+    instance = models.ForeignKey(WidgetInstance)
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=255, blank=True)

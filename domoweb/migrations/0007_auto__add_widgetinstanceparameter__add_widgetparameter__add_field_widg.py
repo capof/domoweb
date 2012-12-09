@@ -8,6 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'WidgetInstanceParameter'
+        db.create_table('domoweb_widgetinstanceparameter', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.WidgetInstance'])),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+        ))
+        db.send_create_signal('domoweb', ['WidgetInstanceParameter'])
+
         # Adding model 'WidgetParameter'
         db.create_table('domoweb_widgetparameter', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -52,6 +61,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting model 'WidgetInstanceParameter'
+        db.delete_table('domoweb_widgetinstanceparameter')
+
         # Deleting model 'WidgetParameter'
         db.delete_table('domoweb_widgetparameter')
 
@@ -124,6 +136,13 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Page']"}),
             'widget': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Widget']", 'on_delete': 'models.DO_NOTHING'})
+        },
+        'domoweb.widgetinstanceparameter': {
+            'Meta': {'object_name': 'WidgetInstanceParameter'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.WidgetInstance']"}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'value': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
         'domoweb.widgetparameter': {
             'Meta': {'object_name': 'WidgetParameter'},
