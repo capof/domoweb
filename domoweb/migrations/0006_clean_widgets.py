@@ -1,41 +1,32 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'Page'
-        db.create_table('domoweb_page', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('theme_id', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-        ))
-        db.send_create_signal('domoweb', ['Page'])
-
-        # Adding model 'PageTheme'
-        db.create_table('domoweb_pagetheme', (
-            ('id', self.gf('django.db.models.fields.CharField')(max_length=50, primary_key=True)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=50)),
-        ))
-        db.send_create_signal('domoweb', ['PageTheme'])
-
+        "Write your forwards methods here."
+        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
+        WidgetInstance = orm['domoweb.WidgetInstance']
+        WidgetInstance.objects.all().delete()
+        Widget = orm['domoweb.Widget']
+        Widget.objects.all().delete()
 
     def backwards(self, orm):
-        # Deleting model 'Page'
-        db.delete_table('domoweb_page')
-
-        # Deleting model 'PageTheme'
-        db.delete_table('domoweb_pagetheme')
-
+        "Write your backwards methods here."
 
     models = {
         'domoweb.page': {
             'Meta': {'object_name': 'Page'},
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'theme_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'})
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'icon': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.PageIcon']", 'null': 'True', 'on_delete': 'models.DO_NOTHING', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'left': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
+            'right': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'theme': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.PageTheme']", 'null': 'True', 'on_delete': 'models.DO_NOTHING', 'blank': 'True'})
         },
         'domoweb.pageicon': {
             'Meta': {'object_name': 'PageIcon'},
@@ -64,9 +55,10 @@ class Migration(SchemaMigration):
             'feature_id': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'page_id': ('django.db.models.fields.IntegerField', [], {}),
-            'widget_id': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+            'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Page']"}),
+            'widget': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Widget']", 'on_delete': 'models.DO_NOTHING'})
         }
     }
 
     complete_apps = ['domoweb']
+    symmetrical = True

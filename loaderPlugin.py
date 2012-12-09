@@ -54,17 +54,27 @@ class LoaderTask(threading.Thread):
         self.updateStatus('finished')
 
     def loadWidgets(self):
-        from domoweb.models import Widget
+        from domoweb.models import Widget, WidgetParameter
         root = self.project['packs']['widgets']['root']
         # List available widgets
         Widget.objects.all().delete()
+        WidgetParameter.objects.all().delete()
         if os.path.isdir(root):
             for file in os.listdir(root):
                 if not file.startswith('.'): # not hidden file
-                    main = os.path.join(root, file, "main.js")
-                    if os.path.isfile(main):
-                        w = Widget(id=file)
-                        w.save()
+                    info = os.path.join(root, file, "info.json")
+                    if os.path.isfile(info):
+                        widgetset_file = open(info, "r")
+                        widgetset_json = simplejson.load(widgetset_file)
+                        widgetset_id = widgetset_json["identity"]["id"]
+                        widgetset_name = widgetset_json["identity"]["name"]
+                        widgetset_version = widgetset_json["identity"]["version"]
+                        widgetset_widgets = widgetset_json["widgets"]
+                        for id, widget in widgetset_widgets.items():
+                            widget_id = "%s-%s" %(widgetset_id, id)
+                            widget_name = "%s [%s]" % (widget['name'], widgetset_name)
+                            w = Widget(id=widget_id, package=widgetset_id, version=widgetset_version, name=widget_name, height=widget['height'], width=widget['width'])
+                            w.save()
     
     def loadIconsets(self):
         from domoweb.models import PageIcon

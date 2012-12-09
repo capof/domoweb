@@ -1,0 +1,25 @@
+{
+    "json_version": 1,
+    "identity": {
+        "type": "dmg_widgetset",
+        "id": "basic",
+        "version": 1,
+        "name": "Basic",
+        "description": "Basic widgets for single command/sensor",
+        "creator": "Ferllings",
+        "creator_email": "cedric@domogik.org"
+    },
+    "widgets": {
+        "sensorNumber": {
+            "name" : "Sensor Number",
+            "height": 2,
+            "width": 2,
+            "parameters": {
+                "border" : {
+                    "type": "boolean",
+                    "default": "true"
+                }
+            }
+        }
+    }
+}

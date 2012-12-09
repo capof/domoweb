@@ -56,6 +56,7 @@ rinor_api.register(RepositoryResource())
 rinor_api.register(CommandResource())
 rinor_api.register(HostResource())
 rinor_api.register(PageResource())
+rinor_api.register(WidgetInstanceResource())
 
 urlpatterns = patterns('',
     (r'', include(rinor_api.urls)),

@@ -8,7 +8,20 @@ class Parameter(models.Model):
     
 class Widget(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
+    version = models.CharField(max_length=50, default="")
+    package = models.CharField(max_length=50, default="")
+    name = models.CharField(max_length=50, default="")
+    height = models.IntegerField(default=2)
+    width = models.IntegerField(default=2)
 
+class WidgetParameter(models.Model):
+    id = models.AutoField(primary_key=True)
+    widget = models.ForeignKey(Widget)
+    key = models.CharField(max_length=50)
+    required = models.BooleanField()
+    type = models.CharField(max_length=50)
+    default = models.CharField(max_length=50, blank=True)
+    
 class PageTheme(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     label = models.CharField(max_length=50)
@@ -129,10 +142,14 @@ class Page(models.Model):
     def _get_max_level(self):
         return self._max_level
     max_level = property(_get_max_level)
-    
+
 class WidgetInstance(models.Model):
     id = models.AutoField(primary_key=True)
     page = models.ForeignKey(Page)
-    order = models.IntegerField()
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
-    feature_id = models.IntegerField()
+
+class WidgetInstanceParameter(models.Model):
+    id = models.AutoField(primary_key=True)
+    instance = models.ForeignKey(WidgetInstance)
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=255, blank=True)
