@@ -10,9 +10,6 @@
  *
  * Revision: $Id: basic.css 257 2010-07-27 23:06:56Z emartin24 $
  */
-
-#basic-modal-content {display:none;}
-
 /* Overlay */
 #simplemodal-overlay {background-color:#000; cursor:wait;}
 

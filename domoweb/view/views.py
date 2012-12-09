@@ -39,10 +39,13 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
-from domoweb.models import Widget, PageIcon, WidgetInstance, PageTheme
+from domoweb.models import Widget, WidgetParameter, PageIcon, WidgetInstance, WidgetInstanceParameter, PageTheme
 from domoweb import fields
+from domoweb.forms import ParametersForm
     
 class ThemeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -168,4 +171,40 @@ def page_elements(request, id):
 #        devices=devices,
         widgets=widgets,
         widgetinstances=widgetinstances,
+    )
+
+#@admin_required
+def page_widget_configure(request, id):
+    instance = WidgetInstance.objects.get(id=id)
+    page_title = "Configure %s widget" % (instance.widget.name)
+
+    parametersform = ParametersForm(auto_id='param_%s')
+    widgetparameters = WidgetParameter.objects.filter(widget_id=instance.widget_id)    
+    for parameter in widgetparameters:
+        try:
+            wip = WidgetInstanceParameter.objects.get(instance_id=id, key=parameter.key)
+        except ObjectDoesNotExist:
+            parametersform.addField(parameter=parameter)
+        else:
+            parametersform.addField(parameter=parameter, value=wip.value)
+
+    if request.method == 'POST':
+        valid = True
+        if parametersform:
+            parametersform.setData(request.POST)
+            parametersform.validate()
+            valid = valid and parametersform.is_valid()
+        if valid:
+            WidgetInstanceParameter.objects.filter(instance_id=id).delete()
+            cd = parametersform.cleaned_data
+            for parameter in widgetparameters:
+                p = WidgetInstanceParameter(instance_id=id, key=parameter.key, value=cd[parameter.key])
+                p.save()
+            return redirect('page_elements_view', id=instance.page_id) # Redirect after POST
+
+    return go_to_page(
+        request, 'widget_configure.html',
+        page_title,
+        widget=instance,
+        parametersform=parametersform,
     )

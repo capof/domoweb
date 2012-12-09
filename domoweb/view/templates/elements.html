@@ -33,7 +33,7 @@
 {% block js_script %}
     $(function() {
 	$('#show_widgets').click(function (e) {
-            $('#basic-modal-content').modal();
+            $('#widgets_list').modal();
             return false;
 	});
         $(document).on('click', '.del_widget', function (e) {
@@ -47,16 +47,12 @@
                         $.notification('error', "{% trans "Widget not deleted" %} (" + jqXHR.responseText + ")");
                 });
 	});
-        $(document).on('click', '.conf_widget', function (e) {
-            widget_id = $(this).attr('widget-id');
-
-	});
         $('.add_widget').click(function (e) {
             widget_id = $(this).attr('widget-id');
             rinor.post(['api', 'widgetinstance'], {'page_id': {{ page.id }}, 'widget_id': widget_id})
                 .done(function(data, status, xhr){
                     console.log(data);
-                    $('#widgetinstances').append("<li id='widget_" + data.id + "'>" + data.id + " - " + data.widget_id + " <button widget-id='" + data.id + "' class='del_widget'>delete</button></li>");
+                    $('#widgetinstances').append("<li id='widget_" + data.id + "'>" + data.id + " - " + data.widget_id + " <button widget-id='" + data.id + "' class='conf_widget'>configure</button><button widget-id='" + data.id + "' class='del_widget'>delete</button></li>");
                     $.modal.close();
                 })
                 .fail(function(jqXHR, status, error){
@@ -92,8 +88,8 @@
             </ul>
         </nav>
     </header>
-    <div id="basic-modal-content">
-        <h2>Basic Modal Dialog</h2>
+    <div id="widgets_list" class="modal">
+        <h2>Choose a Widget</h2>
         <ul>
         {% for widget in widgets %}
             <li><button class='add_widget' widget-id='{{ widget.id }}'>{{ widget.name }}</button></li>
@@ -103,7 +99,7 @@
     <section role='main'>
         <ul id='widgetinstances'>
         {% for instance in widgetinstances %}
-            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <button widget-id='{{ instance.id }}' class='conf_widget'>configure</button><button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
+            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <a href='{% url page_widget_configure_view instance.id %}'>configure</a><button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
         {% endfor %}
         </ul>
         <button id='show_widgets'>Add widget</button>

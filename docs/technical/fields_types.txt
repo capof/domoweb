@@ -7,6 +7,8 @@ The following types are used to define a data value type and generate the approp
 Type: boolean
 =============
 
+* values = 'true' / 'false'
+
 Validation: Validates that the value is True (e.g. the check box is checked) if the field has required=true.
 Errors: required
 

@@ -534,7 +534,7 @@ class WidgetInstanceResource(ModelResource):
         queryset = WidgetInstance.objects.all()
         resource_name = 'widgetinstance'
         list_allowed_methods = ['post']
-        detail_allowed_methods = ['delete']
+        detail_allowed_methods = ['delete', 'get']
         authentication = Authentication()
         authorization = Authorization()
         always_return_data = True

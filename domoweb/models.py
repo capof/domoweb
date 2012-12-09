@@ -18,9 +18,11 @@ class WidgetParameter(models.Model):
     id = models.AutoField(primary_key=True)
     widget = models.ForeignKey(Widget)
     key = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     required = models.BooleanField()
     type = models.CharField(max_length=50)
     default = models.CharField(max_length=50, blank=True)
+    description = models.CharField(max_length=255)
     
 class PageTheme(models.Model):
     id = models.CharField(max_length=50, primary_key=True)

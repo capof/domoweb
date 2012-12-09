@@ -16,8 +16,10 @@
             "width": 2,
             "parameters": {
                 "border" : {
+                    "name": "Border",
+                    "description": "Set this to get a border around the widget",
                     "type": "boolean",
-                    "default": "true"
+                    "default": "True"
                 }
             }
         }

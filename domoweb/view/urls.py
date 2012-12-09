@@ -42,4 +42,5 @@ urlpatterns = patterns('domoweb.view.views',
     url(r'^(?P<id>\d+)$', 'page', name="page_view"),
     url(r'^configuration/(?P<id>\d+)$', 'page_configuration', name="page_configuration_view"),
     url(r'^elements/(?P<id>\d+)$', 'page_elements', name="page_elements_view"),
+    url(r'^widget/configure/(?P<id>\d+)$', 'page_widget_configure', name="page_widget_configure_view"),
 )
