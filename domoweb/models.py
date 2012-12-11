@@ -9,10 +9,12 @@ class Parameter(models.Model):
 class Widget(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     version = models.CharField(max_length=50, default="")
-    package = models.CharField(max_length=50, default="")
+    set_id = models.CharField(max_length=50, default="")
+    set_name = models.CharField(max_length=50, default="")
     name = models.CharField(max_length=50, default="")
     height = models.IntegerField(default=2)
     width = models.IntegerField(default=2)
+    template = models.CharField(max_length=255, default="")
 
 class WidgetParameter(models.Model):
     id = models.AutoField(primary_key=True)
@@ -23,6 +25,16 @@ class WidgetParameter(models.Model):
     type = models.CharField(max_length=50)
     default = models.CharField(max_length=50, blank=True)
     description = models.CharField(max_length=255)
+
+class WidgetJS(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    widget = models.ForeignKey(Widget)
+
+class WidgetCSS(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    widget = models.ForeignKey(Widget)
     
 class PageTheme(models.Model):
     id = models.CharField(max_length=50, primary_key=True)

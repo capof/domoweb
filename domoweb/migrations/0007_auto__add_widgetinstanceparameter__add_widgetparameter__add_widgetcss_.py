@@ -8,6 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'WidgetInstanceParameter'
+        db.create_table('domoweb_widgetinstanceparameter', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.WidgetInstance'])),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+        ))
+        db.send_create_signal('domoweb', ['WidgetInstanceParameter'])
+
         # Adding model 'WidgetParameter'
         db.create_table('domoweb_widgetparameter', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -21,22 +30,34 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('domoweb', ['WidgetParameter'])
 
-        # Adding model 'WidgetInstanceParameter'
-        db.create_table('domoweb_widgetinstanceparameter', (
+        # Adding model 'WidgetCSS'
+        db.create_table('domoweb_widgetcss', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.WidgetInstance'])),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('widget', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.Widget'])),
         ))
-        db.send_create_signal('domoweb', ['WidgetInstanceParameter'])
+        db.send_create_signal('domoweb', ['WidgetCSS'])
+
+        # Adding model 'WidgetJS'
+        db.create_table('domoweb_widgetjs', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('widget', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.Widget'])),
+        ))
+        db.send_create_signal('domoweb', ['WidgetJS'])
 
         # Adding field 'Widget.version'
         db.add_column('domoweb_widget', 'version',
                       self.gf('django.db.models.fields.CharField')(default='', max_length=50),
                       keep_default=False)
 
-        # Adding field 'Widget.package'
-        db.add_column('domoweb_widget', 'package',
+        # Adding field 'Widget.set_id'
+        db.add_column('domoweb_widget', 'set_id',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=50),
+                      keep_default=False)
+
+        # Adding field 'Widget.set_name'
+        db.add_column('domoweb_widget', 'set_name',
                       self.gf('django.db.models.fields.CharField')(default='', max_length=50),
                       keep_default=False)
 
@@ -55,6 +76,11 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.IntegerField')(default=2),
                       keep_default=False)
 
+        # Adding field 'Widget.template'
+        db.add_column('domoweb_widget', 'template',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=255),
+                      keep_default=False)
+
         # Deleting field 'WidgetInstance.feature_id'
         db.delete_column('domoweb_widgetinstance', 'feature_id')
 
@@ -63,17 +89,26 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting model 'WidgetInstanceParameter'
+        db.delete_table('domoweb_widgetinstanceparameter')
+
         # Deleting model 'WidgetParameter'
         db.delete_table('domoweb_widgetparameter')
 
-        # Deleting model 'WidgetInstanceParameter'
-        db.delete_table('domoweb_widgetinstanceparameter')
+        # Deleting model 'WidgetCSS'
+        db.delete_table('domoweb_widgetcss')
+
+        # Deleting model 'WidgetJS'
+        db.delete_table('domoweb_widgetjs')
 
         # Deleting field 'Widget.version'
         db.delete_column('domoweb_widget', 'version')
 
-        # Deleting field 'Widget.package'
-        db.delete_column('domoweb_widget', 'package')
+        # Deleting field 'Widget.set_id'
+        db.delete_column('domoweb_widget', 'set_id')
+
+        # Deleting field 'Widget.set_name'
+        db.delete_column('domoweb_widget', 'set_name')
 
         # Deleting field 'Widget.name'
         db.delete_column('domoweb_widget', 'name')
@@ -83,6 +118,9 @@ class Migration(SchemaMigration):
 
         # Deleting field 'Widget.width'
         db.delete_column('domoweb_widget', 'width')
+
+        # Deleting field 'Widget.template'
+        db.delete_column('domoweb_widget', 'template')
 
         # Adding field 'WidgetInstance.feature_id'
         db.add_column('domoweb_widgetinstance', 'feature_id',
@@ -129,9 +167,17 @@ class Migration(SchemaMigration):
             'height': ('django.db.models.fields.IntegerField', [], {'default': '2'}),
             'id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
-            'package': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
+            'set_id': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
+            'set_name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
+            'template': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             'version': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
             'width': ('django.db.models.fields.IntegerField', [], {'default': '2'})
+        },
+        'domoweb.widgetcss': {
+            'Meta': {'object_name': 'WidgetCSS'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'widget': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Widget']"})
         },
         'domoweb.widgetinstance': {
             'Meta': {'object_name': 'WidgetInstance'},
@@ -145,6 +191,12 @@ class Migration(SchemaMigration):
             'instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.WidgetInstance']"}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
+        },
+        'domoweb.widgetjs': {
+            'Meta': {'object_name': 'WidgetJS'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'widget': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['domoweb.Widget']"})
         },
         'domoweb.widgetparameter': {
             'Meta': {'object_name': 'WidgetParameter'},

@@ -83,18 +83,24 @@ def page(request, id=1):
 
     iconsets = PageIcon.objects.values('iconset_id', 'iconset_name').distinct()
 
-    widgets = WidgetInstance.objects.filter(page_id=id).values('widget_id').distinct()
-    widgetinstances = WidgetInstancePipe().get_page_list(id)
+    widget_ids = WidgetInstance.objects.filter(page_id=id).values('widget_id').distinct()
 
-    usageDict = DeviceUsagePipe().get_dict()
-    typeDict = DeviceTypePipe().get_dict()
+    widgets = []
+    for w in widget_ids:
+        widget = Widget.objects.get(id=w['widget_id'])
+        widgets.append(widget)
+        
+    widgetinstances = WidgetInstance.objects.filter(page_id=id)
+
+#    usageDict = DeviceUsagePipe().get_dict()
+#    typeDict = DeviceTypePipe().get_dict()
 
     return go_to_page(
         request, 'page.html',
         page_title,
         widgets=widgets,
-        device_types=convertToStr(typeDict),
-        device_usages=convertToStr(usageDict),
+#        device_types=convertToStr(typeDict),
+#        device_usages=convertToStr(usageDict),
         page=page,
         page_path=page_path,
         page_tree=page_tree,

@@ -54,7 +54,7 @@ class LoaderTask(threading.Thread):
         self.updateStatus('finished')
 
     def loadWidgets(self):
-        from domoweb.models import Widget, WidgetParameter
+        from domoweb.models import Widget, WidgetParameter, WidgetCSS, WidgetJS
         root = self.project['packs']['widgets']['root']
         # List available widgets
         Widget.objects.all().delete()
@@ -73,13 +73,23 @@ class LoaderTask(threading.Thread):
                         for wid, widget in widgetset_widgets.items():
                             widget_id = "%s-%s" %(widgetset_id, wid)
                             widget_name = "%s [%s]" % (widget['name'], widgetset_name)
-                            w = Widget(id=widget_id, package=widgetset_id, version=widgetset_version, name=widget_name, height=widget['height'], width=widget['width'])
+                            widget_template = os.path.join(root, file, "templates", ("%s.html" % wid))
+                            w = Widget(id=widget_id, set_id=widgetset_id, set_name=widgetset_name, version=widgetset_version, name=widget_name, height=widget['height'], width=widget['width'], template=widget_template)
                             w.save()
+                            # Parameters
                             for pid, param in widget['parameters'].items():
                                 p = WidgetParameter(widget_id=widget_id, key=pid, name=param['name'], description=param['description'], type=param['type'])
                                 if 'default' in param:
                                     p.default = param['default']
                                 p.save()
+                            # CSS Files
+                            for name in widget['css']:
+                                f = WidgetCSS(widget_id=widget_id, name=name)
+                                f.save()
+                            # JS Files
+                            for name in widget['js']:
+                                f = WidgetJS(widget_id=widget_id, name=name)
+                                f.save()
     
     def loadIconsets(self):
         from domoweb.models import PageIcon
