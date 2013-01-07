@@ -40,6 +40,10 @@ class LoaderTask(threading.Thread):
         self.updateStatus('themes-loading')
         self.loadThemes()
         self.updateStatus('theme-loaded')
+        cherrypy.engine.log("Loading Rinor Info")
+        self.updateStatus('rinor-loading')
+        self.loadRinorInfo()
+        self.updateStatus('rinor-loaded')
         
         cherrypy.engine.log("Setting up the static directory to be served")
         self.updateStatus('statics-mounting')
@@ -144,6 +148,12 @@ class LoaderTask(threading.Thread):
         cherrypy.engine.log(buffer.getvalue())
         sys.stdout = sys.__stdout__
     """
+    
+    def loadRinorInfo(self):
+        from rinorPipe import UsagePipe
+        self.updateStatus('rinor-loading-usages')
+        UsagePipe.load()
+        self.updateStatus('rinor-loaded-usages')
 
 class Loader(object):
     def __init__(self, project):
@@ -198,13 +208,19 @@ class Loader(object):
                 statusText = '10&#37; - Loading iconsets';
                 break;
             case 'loader-iconsets-loaded':
-                statusText = '60&#37; - Iconsets loaded';
+                statusText = '50&#37; - Iconsets loaded';
                 break;
             case 'loader-themes-loading':
-                statusText = '60&#37; - Loading themes';
+                statusText = '50&#37; - Loading themes';
                 break;
             case 'loader-theme-loaded':
-                statusText = '90&#37; - Themes loaded';
+                statusText = '60&#37; - Themes loaded';
+                break;
+            case 'loader-rinor-loading':
+                statusText = '60&#37; - Loading RINOR data';
+                break;
+            case 'loader-rinor-loaded':
+                statusText = '90&#37; - RINOR data loaded';
                 break;
             case 'loader-statics-mounting':
                 statusText = '90&#37; - Mounting static folders';

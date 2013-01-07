@@ -167,3 +167,8 @@ class WidgetInstanceParameter(models.Model):
     instance = models.ForeignKey(WidgetInstance)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=255, blank=True)
+
+class Usage(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50, default="")
+    options = models.TextField(default="")

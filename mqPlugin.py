@@ -29,11 +29,12 @@ class MQPlugin(plugins.SimplePlugin):
     def __init__(self, bus):
         self.task = MQBroadcaster()
         plugins.SimplePlugin.__init__(self, bus)
-        self.bus.log("Starting the MQ Plugin")
         
     def start(self):
+        self.bus.log("Starting the MQ Plugin")
         self.task.start()
         cherrypy.tree.mount(MQ(), '/mq')
+
     def stop(self):
         self.task.stop()
         self.task = None

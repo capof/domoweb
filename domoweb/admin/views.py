@@ -144,7 +144,7 @@ def admin_organization_devices(request):
 
     id = request.GET.get('id', 0)
     devices = DeviceExtendedPipe().get_list()
-    usages = DeviceUsagePipe().get_list()
+    usages = Usage.objects.all()
     types = DeviceTypePipe().get_list()
 
     return go_to_page(

@@ -8,14 +8,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'WidgetInstanceParameter'
-        db.create_table('domoweb_widgetinstanceparameter', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.WidgetInstance'])),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+        # Adding model 'Usage'
+        db.create_table('domoweb_usage', (
+            ('id', self.gf('django.db.models.fields.CharField')(max_length=50, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(default='', max_length=50)),
+            ('options', self.gf('django.db.models.fields.TextField')(default='')),
         ))
-        db.send_create_signal('domoweb', ['WidgetInstanceParameter'])
+        db.send_create_signal('domoweb', ['Usage'])
 
         # Adding model 'WidgetParameter'
         db.create_table('domoweb_widgetparameter', (
@@ -45,6 +44,15 @@ class Migration(SchemaMigration):
             ('widget', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.Widget'])),
         ))
         db.send_create_signal('domoweb', ['WidgetJS'])
+
+        # Adding model 'WidgetInstanceParameter'
+        db.create_table('domoweb_widgetinstanceparameter', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('instance', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['domoweb.WidgetInstance'])),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+        ))
+        db.send_create_signal('domoweb', ['WidgetInstanceParameter'])
 
         # Adding field 'Widget.version'
         db.add_column('domoweb_widget', 'version',
@@ -89,8 +97,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting model 'WidgetInstanceParameter'
-        db.delete_table('domoweb_widgetinstanceparameter')
+        # Deleting model 'Usage'
+        db.delete_table('domoweb_usage')
 
         # Deleting model 'WidgetParameter'
         db.delete_table('domoweb_widgetparameter')
@@ -100,6 +108,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'WidgetJS'
         db.delete_table('domoweb_widgetjs')
+
+        # Deleting model 'WidgetInstanceParameter'
+        db.delete_table('domoweb_widgetinstanceparameter')
 
         # Deleting field 'Widget.version'
         db.delete_column('domoweb_widget', 'version')
@@ -161,6 +172,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Parameter'},
             'key': ('django.db.models.fields.CharField', [], {'max_length': '30', 'primary_key': 'True'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+        },
+        'domoweb.usage': {
+            'Meta': {'object_name': 'Usage'},
+            'id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '50'}),
+            'options': ('django.db.models.fields.TextField', [], {'default': "''"})
         },
         'domoweb.widget': {
             'Meta': {'object_name': 'Widget'},

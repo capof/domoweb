@@ -119,12 +119,14 @@ class DeviceTypePipe(RinorPipe):
     paths = []
     dependencies = ['package']
 
+"""
 class DeviceUsagePipe(RinorPipe):
     cache_expiry = 3600
     list_path = "/base/device_usage/list"
     index = 'device_usage'
     paths = []
-    
+"""
+
 class DevicePipe(RinorPipe):
     cache_expiry = 3600
     list_path = "/base/device/list"
@@ -161,25 +163,6 @@ class FeaturePipe(RinorPipe):
     index = 'feature'
     paths = []
     dependencies = ['device']
-
-
-"""
-class WidgetInstancePipe(RinorPipe):
-    cache_expiry = 0
-    paths = []
-    
-    def get_page_list(self, id):
-        instances = WidgetInstance.objects.filter(page__id=id)
-        for instance in instances:
-            feature = FeaturePipe().get_pk(instance.feature_id)
-            if feature != None:
-                instance.feature = feature
-            else:
-                # The feature does not exist anymore
-                # We delete the widget instance
-                instance.delete()
-        return instances
-"""
 
 class DeviceExtendedPipe(RinorPipe):
     cache_expiry = 3600
