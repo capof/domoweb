@@ -298,10 +298,6 @@ class WidgetInstance(models.Model):
     page = models.ForeignKey(Page)
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
 
-    @classmethod
-    def get_page_list(cls, id):
-        return cls.objects.filter(page__id=id).order_by('order')
-
 class WidgetInstanceParam(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
@@ -319,3 +315,70 @@ class WidgetInstanceCommand(models.Model):
     instance = models.ForeignKey(WidgetInstance)
     key = models.CharField(max_length=50)
     command = models.ForeignKey(Command, on_delete=models.DO_NOTHING)
+    
+class Person(RestModel):
+    id = models.IntegerField(primary_key=True)
+    firstname = models.CharField(max_length=50)
+    lastname = models.CharField(max_length=50)
+    
+    list_path = "/account/person/list"
+    delete_path = "/account/person/del"
+    create_path = "/account/person/add"
+    update_path = "/account/person/update"
+    index = 'person'
+    
+    @staticmethod
+    def refresh():
+        _data = Person.get_list();
+        Person.objects.all().delete()
+        for record in _data:
+            r = Person(id=record.id, firstname=record.first_name, lastname=record.last_name)
+            r.save()
+    
+    def delete(self, *args, **kwargs):
+        Person.delete_details(self.id)
+        super(Person, self).delete(*args, **kwargs)
+    
+    @classmethod
+    def create(cls, firstname, lastname):
+        data = ['first_name', firstname, 'last_name', lastname]
+        record = cls.post_list(data)
+        r = Person(id=record.id, firstname=record.first_name, lastname=record.last_name)
+        r.save()
+        return r
+
+    @classmethod
+    def update(self, firstname, lastname):
+        data = ['id', self.id, 'first_name', firstname, 'last_name', lastname]
+        record = cls.put_detail(data)
+        self.firstname=firstname
+        self.lastname=lastname
+        self.save()
+        return self
+
+class User(RestModel):
+    id = models.IntegerField(primary_key=True)
+    login = models.CharField(max_length=50)
+    person = models.ForeignKey(Person)
+    is_admin = models.BooleanField(default=True)
+    
+    list_path = "/account/user/list"
+    add_path = "/account/user/add"
+    update_path = "/account/user/update"
+    delete_path = "/account/user/del"
+    password_path = "/account/user/password"
+    index = 'account'
+    
+    @staticmethod
+    def refresh():
+        Person.refresh()
+        _data = User.get_list();
+        User.objects.all().delete()
+        for record in _data:
+            p = Person.objects.get(id=record.person_id)
+            r = User(id=record.id, login=record.login, person=p, is_admin=(record.is_admin=='True'))
+            r.save()
+    
+    def delete(self, *args, **kwargs):
+        User.delete_details(self.id)
+        super(User, self).delete(*args, **kwargs)

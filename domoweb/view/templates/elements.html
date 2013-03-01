@@ -32,34 +32,46 @@
 
 {% block js_script %}
     $(function() {
-	$('#show_widgets').click(function (e) {
-            $('#widgets_list').modal();
-            return false;
-	});
-        $(document).on('click', '.del_widget', function (e) {
-            widget_id = $(this).attr('widget-id');
-            rinor.delete(['api', 'widgetinstance', widget_id])
-                .done(function(data, status, xhr){
-                    $('#widget_' + widget_id).remove();
-                })
-                .fail(function(jqXHR, status, error){
-                    if (jqXHR.status == 400)
-                        $.notification('error', "{% trans "Widget not deleted" %} (" + jqXHR.responseText + ")");
-                });
-	});
-        $('.add_widget').click(function (e) {
-            widget_id = $(this).attr('widget-id');
-            rinor.post(['api', 'widgetinstance'], {'page_id': {{ page.id }}, 'widget_id': widget_id})
-                .done(function(data, status, xhr){
-                    console.log(data);
-                    $('#widgetinstances').append("<li id='widget_" + data.id + "'>" + data.id + " - " + data.widget_id + " <button widget-id='" + data.id + "' class='conf_widget'>configure</button><button widget-id='" + data.id + "' class='del_widget'>delete</button></li>");
-                    $.modal.close();
-                })
-                .fail(function(jqXHR, status, error){
-                    if (jqXHR.status == 400)
-                        $.notification('error', "{% trans "Widget not created" %} (" + jqXHR.responseText + ")");
-                });
-	});
+    $('#show_widgets').click(function (e) {
+	$('#widgetslist').modal();
+	return false;
+    });
+    
+    $("a#save").click(function() {
+	$("#pageForm").submit();
+    });
+
+    $("body").on("click", ".del_widget", function() {
+	var id = $(this).data("instanceid");
+	$("#widgetinstance_" + id).remove();
+	$("#configinstance_" + id).remove();
+	$.modal.close();
+    });
+
+    $("#widgetsmatrix").on("click", ".widgetinstance", function() {
+	var id = $(this).data("instanceid");
+	$("#configinstance_" + id).modal();
+	return false;
+    });
+    
+    $("#widgetslist").on("click", ".add_widget", function () {
+        var widgetid = $(this).data("widgetid");
+
+        var randomnumber=Math.floor(Math.random()*10001)
+        var id = 'n' + randomnumber;
+        $('#widgetsmatrix').append("<button id='widgetinstance_" + id + "' class='widgetinstance' data-instanceid='" + id + "'>" + widgetid + " \
+                <input type='hidden' name='instance[" + id + "][widgetid]' value='" + widgetid + "' /> \
+                </button>");
+    
+        $('#configpanel').append("<div id='configinstance_" + id + "' style='display: none'> \
+            <h2>Widget " + id + " parameters</h2> \
+            <p><a href='#' class='remove_widget' data-instanceid='" + id + "' role='button'>Remove</a><p> \
+            <div class='content'></div> \
+            </div>");
+
+        $('#configinstance_' + id + ' .content').load(VIEW_URL + "/elements/widgetparams/" + id + "/" + widgetid);
+        $.modal.close();
+    });
     });
 {% endblock %}
 
@@ -83,27 +95,39 @@
             <ul id="mainmenu">
                 <li><a role="button" id ="save" class="button_round icon32-menu-save" href="#" title="{% trans "Save widgets" %}"><span class="offscreen">{% trans "Save widgets" %}</span></a></li>
                 <li><a role="button" id ="cancel" class="button_round icon32-menu-cancel" href="{% url page_view page.id %}" title="{% trans "Cancel" %}"><span class="offscreen">{% trans "Cancel" %}</span></a></li>
-                <li><a role="button" id ="showwidgets" class="button_round icon24-menu-lookup" href="#" title="{% trans "Show widgets dialog" %}"><span class="offscreen">{% trans "Show widgets dialog" %}</span></a></li>
+                <li><a role="button" id ="show_widgets" class="button_round icon24-menu-lookup" href="#" title="{% trans "Show widgets dialog" %}"><span class="offscreen">{% trans "Show widgets dialog" %}</span></a></li>
                 <li><a role="button" class="button_round icon24-menu-lock" href="{% url logout_view %}?next={{ request.path }}" title="{% trans "Disconnect" %} {{ request.session.user.first_name }}"><span class="offscreen">{% trans "Log out" %} {{ request.session.user.first_name }}</span></a></li>
             </ul>
         </nav>
     </header>
-    <div id="widgets_list" class="modal">
-        <h2>Choose a Widget</h2>
-        <ul>
-        {% for widget in widgets %}
-            <li><button class='add_widget' widget-id='{{ widget.id }}'>{{ widget.name }}</button></li>
-        {% endfor %}
-        </ul>
-    </div>
-    <section role='main'>
-        <ul id='widgetinstances'>
-        {% for instance in widgetinstances %}
-            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <a href='{% url page_widget_configure_view instance.id %}'>configure</a><button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
-        {% endfor %}
-        </ul>
-        <button id='show_widgets'>Add widget</button>
-    </section>
-    
-
+    <main role='main'>        
+        <form action="{% url page_elements_view page.id %}" id="pageForm" method="post">
+            <div id='matrixbackground'>
+                <section id='widgetsconfig'>
+                    {% for instance in widgetinstances %}
+                        <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
+                            <h2>Widget {{ instance.widget_id }} parameters</h2>
+                            <p><button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button></p>
+                        </div>
+                    {% endfor %}
+                </section>
+                <div id='widgetsmatrix' role="list">
+                    {% for instance in widgetinstances %}
+                        <button id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}'>
+                            {{ instance.widget_id }}
+                            <input type='hidden' name='instance[{{ instance.id }}][instance]' value='{{ instance.id }}' />
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+        <div id="widgetslist" class="modal">
+            <h2>Choose a Widget</h2>
+            <ul>
+            {% for widget in widgets %}
+                <li><button class='add_widget' data-widgetid='{{ widget.id }}'>{{ widget.name }}</button></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </main>
 {% endblock %}

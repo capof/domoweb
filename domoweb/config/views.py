@@ -38,15 +38,15 @@ import urllib
 
 from django.utils.http import urlquote
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.shortcuts import redirect
+from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django import forms
 from django.forms.widgets import Select
-from domoweb.models import Parameter
+from domoweb.restModel import RestModel
+from domoweb.models import Parameter, DeviceType, DeviceUsage, Device
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.signals import rinor_changed
@@ -203,9 +203,6 @@ def config_loadrinordata(request):
     @param request : the HTTP request
     @return an HttpResponse object
     """
-    from domoweb.restModel import RestModel
-    from domoweb.models import Parameter, DeviceType, DeviceUsage, Device
-
     ip = Parameter.objects.get(key='rinor_ip')
     port = Parameter.objects.get(key='rinor_port')
     try:

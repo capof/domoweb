@@ -136,7 +136,7 @@ class LoaderTask(threading.Thread):
     def loadRinorModels(self):
 	from domoweb.exceptions import RinorNotConfigured, RinorNotAvailable
         from domoweb.restModel import RestModel
-        from domoweb.models import Parameter, DeviceType, DeviceUsage, Device
+        from domoweb.models import Parameter, DeviceType, DeviceUsage, Device, User
         try:
             ip = Parameter.objects.get(key='rinor_ip')
             port = Parameter.objects.get(key='rinor_port')
@@ -159,6 +159,7 @@ class LoaderTask(threading.Thread):
                     DeviceType.refresh()
                     DeviceUsage.refresh()
                     Device.refresh()
+                    User.refresh()
                     model_loaded = True
                 except RinorNotAvailable:
                     cherrypy.engine.log("RINOR not online wait 5s before retry #%s" % i)
