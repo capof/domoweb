@@ -288,8 +288,9 @@ def test_user(user):
 
 def install_dependencies():
     from setuptools.command import easy_install
+    import pkg_resources
     easy_install.main( ['setuptools',
-                          'django == 1.4.2',
+                          'django == 1.4.5',
                           'django-tastypie == 0.9.11',
                           'django-tables2',
                           'simplejson >= 1.9.2',
@@ -299,6 +300,8 @@ def install_dependencies():
                           'south',
                           'manifesto'])
 
+    pkg_resources.get_distribution('django').activate()
+    
 def updateDb(user, db):
     from django.core import management
     from django.conf import settings
@@ -337,7 +340,7 @@ def testImports():
     try:
         import django
     except ImportError:
-        warning("Can't import django, please install it by hand (>= 1.1)")
+        warning("Can't import django, please install it by hand (== 1.4)")
         good = False
         import httplib
     except ImportError:
@@ -346,7 +349,7 @@ def testImports():
     try:
         import simplejson
     except ImportError:
-        warning("Can't import simplejson, please install it by hand (>= 1.1)")
+        warning("Can't import simplejson, please install it by hand (>= 1.9.2)")
         good = False
     assert good, "One or more import have failed, please install required packages and restart this script."
     ok("Imports are good")
