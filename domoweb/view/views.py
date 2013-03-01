@@ -39,10 +39,14 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext, Context, Template
 from django.utils.translation import ugettext as _
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.models import Widget, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, DeviceUsage, Device, Sensor, Command
+from domoweb.models import Widget, WidgetParameter, PageIcon, WidgetInstance, WidgetInstanceParameter, PageTheme
 from domoweb import fields
+from domoweb.forms import ParametersForm
     
 class ThemeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -128,7 +132,7 @@ def page_configuration(request, id):
         iconsets=iconsets
     )
 
-@admin_required
+#@admin_required
 def page_elements(request, id):
     """
     Method called when a ui page widgets is accessed
@@ -142,43 +146,16 @@ def page_elements(request, id):
     iconsets = PageIcon.objects.values('iconset_id', 'iconset_name').distinct()
 
     if request.method == 'POST': # If the form has been submitted...
-        instances = getDictArray(request.POST, 'instance')
-        keys = []
-        for key in instances.keys():
-            try:
-                keys.append(int(key)) # Convert to int and remove new instances
-            except ValueError:
-                pass
-        widgetinstances = WidgetInstance.objects.filter(page_id=id).exclude(id__in=keys).delete()
-        for instanceid, instance in instances.items():
-            if 'widgetid' in instance:
-                w = WidgetInstance(order=0, page=page, widget_id=instance['widgetid'])
+        widgetinstances = WidgetInstance.objects.filter(page_id=id).delete()
+        features = request.POST["features"].split(',')
+        widgets = request.POST["widgets"].split(',')
+        for i, feature in enumerate(features):
+            if feature:
+                w = WidgetInstance(order=i, page=page, feature_id=feature, widget_id=widgets[i])
                 w.save()
-                if (instance['featuretype'].startswith('sensor')):
-                    s = Sensor.objects.get(id=instance['featureid'])
-                    ws = WidgetInstanceSensor(instance=w, key="primary", sensor=s)
-                    ws.save()
-                else:
-                    c = Command.objects.get(id=instance['featureid'])
-                    wc = WidgetInstanceCommand(instance=w, key="primary", command=c)
-                    wc.save()
-                    s = Sensor.objects.get(id=instance['sensor'])
-                    ws = WidgetInstanceSensor(instance=w, key="event", sensor=s)
-                    ws.save()
-            else:
-                if 'sensor' in instance: # A command with a sensor
-                    w = WidgetInstance.objects.get(id=instanceid)
-                    s = Sensor.objects.get(id=instance['sensor'])
-                    try:
-                        ws = WidgetInstanceSensor.objects.get(instance=w, key="event")
-                        ws.sensor = s
-                        ws.save()
-                    except WidgetInstanceSensor.DoesNotExist:
-                        ws = WidgetInstanceSensor(instance=w, key="event", sensor=s)
-                        ws.save()
         return redirect('page_view', id=id) # Redirect after POST
 
-    devices = Device.objects.all()
+#    devices = DeviceExtendedPipe().get_list()
     widgets = Widget.objects.all()
     widgetinstances = WidgetInstance.get_page_list(id)
     
@@ -187,7 +164,7 @@ def page_elements(request, id):
         page_title,
         page=page,
         iconsets=iconsets,
-        devices=devices,
+#        devices=devices,
         widgets=widgets,
         widgetinstances=widgetinstances,
     )
@@ -206,4 +183,40 @@ def page_elements_widgetparams(request, instanceid, featureid, featuretype):
                      "</select></div>")
         c = Context({'command': cmd, 'instanceid': instanceid})
         html = t.render(c)
-    return HttpResponse(html)
+    return HttpResponse(html)    )
+
+#@admin_required
+def page_widget_configure(request, id):
+    instance = WidgetInstance.objects.get(id=id)
+    page_title = "Configure %s widget" % (instance.widget.name)
+
+    parametersform = ParametersForm(auto_id='param_%s')
+    widgetparameters = WidgetParameter.objects.filter(widget_id=instance.widget_id)    
+    for parameter in widgetparameters:
+        try:
+            wip = WidgetInstanceParameter.objects.get(instance_id=id, key=parameter.key)
+        except ObjectDoesNotExist:
+            parametersform.addField(parameter=parameter)
+        else:
+            parametersform.addField(parameter=parameter, value=wip.value)
+
+    if request.method == 'POST':
+        valid = True
+        if parametersform:
+            parametersform.setData(request.POST)
+            parametersform.validate()
+            valid = valid and parametersform.is_valid()
+        if valid:
+            WidgetInstanceParameter.objects.filter(instance_id=id).delete()
+            cd = parametersform.cleaned_data
+            for parameter in widgetparameters:
+                p = WidgetInstanceParameter(instance_id=id, key=parameter.key, value=cd[parameter.key])
+                p.save()
+            return redirect('page_elements_view', id=instance.page_id) # Redirect after POST
+
+    return go_to_page(
+        request, 'widget_configure.html',
+        page_title,
+        widget=instance,
+        parametersform=parametersform,
+    )

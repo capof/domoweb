@@ -20,6 +20,7 @@ from wsPlugin import WSPlugin
 from eventsPlugin import EventsPlugin
 from corePlugin import CorePlugin
 from loaderPlugin import LoaderPlugin
+from rinorPlugin import RinorPlugin
 
 def main():
     """Main function that is called at the startup of Domoweb"""
@@ -109,10 +110,11 @@ def main():
 
     # Loading django config for database connection
     load_config(project)
+    RinorPlugin(engine, project).subscribe()
     LoaderPlugin(engine, project).subscribe()
 
 #    MQPlugin(engine).subscribe()
-    EventsPlugin(engine, project).subscribe()
+#    EventsPlugin(engine, project).subscribe()
     CorePlugin(engine, project).subscribe()
     
     engine.signal_handler.subscribe()
@@ -158,6 +160,9 @@ def load_config(project):
         STATIC_THEMES_URL = project['packs']['themes']['url'],
         STATIC_ICONSETS_URL = project['packs']['iconsets']['url'],
         DOMOWEB_VERSION = project['version'],
+        ALLOWED_INCLUDE_ROOTS = (
+            project['packs']['widgets']['root'],
+        ),
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
@@ -168,7 +173,7 @@ def load_config(project):
         LANGUAGE_CODE = 'en',
         LANGUAGES = (
           ('en', 'English'),
-          ('fr', 'Fran?ais'),
+          ('fr', 'Francais'),
           ('nl_BE', 'Flemish'),
         ),
         LOCALE_PATHS = (
@@ -181,7 +186,7 @@ def load_config(project):
         TEMPLATE_LOADERS = (
             'django.template.loaders.filesystem.Loader',
             'django.template.loaders.app_directories.Loader',
-#            'django.template.loaders.eggs.Loader',
+            'django.template.loaders.eggs.Loader',
         ),
         MIDDLEWARE_CLASSES = (
             'django.contrib.sessions.middleware.SessionMiddleware',

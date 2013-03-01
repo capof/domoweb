@@ -1,4 +1,5 @@
 $(function(){
+    /*
     var es = new EventSource(EVENTS_URL + '/');
     es.addEventListener('open', function (event) {
     }, false);
@@ -9,7 +10,8 @@ $(function(){
     es.addEventListener('error', function (event) {
     }, false);
     
-	$(window).bind('beforeunload', function () {  es.close(); });
+    $(window).bind('beforeunload', function () {  es.close(); });
+*/
 });
 
 (function($) {    

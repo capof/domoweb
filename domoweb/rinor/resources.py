@@ -42,6 +42,7 @@ from domoweb.rinor.pipes import *
 from tastypie import fields
 from tastypie.http import *
 from tastypie.utils import trailing_slash
+from domoweb.models import Widget
 
 class StateResource(RinorResource):
     
@@ -472,4 +473,31 @@ class PageResource(ModelResource):
         # Save parent
         bundle.obj.save()
 
+        return bundle
+
+class WidgetResource(ModelResource):
+    class Meta:
+        queryset = Widget.objects.all()
+        resource_name = 'widget'
+        list_allowed_methods = []
+        detail_allowed_methods = []
+        authentication = Authentication()
+        authorization = Authorization()
+        always_return_data = True
+        
+class WidgetInstanceResource(ModelResource):
+    widget = fields.ForeignKey(WidgetResource, 'widget', full=True)
+    
+    class Meta:
+        queryset = WidgetInstance.objects.all()
+        resource_name = 'widgetinstance'
+        list_allowed_methods = ['post']
+        detail_allowed_methods = ['delete', 'get']
+        authentication = Authentication()
+        authorization = Authorization()
+        always_return_data = True
+
+    def obj_create(self, bundle, request=None, **kwargs):
+        bundle.obj = WidgetInstance(page_id=bundle.data["page_id"], widget_id=bundle.data["widget_id"])
+        bundle.obj.save()
         return bundle

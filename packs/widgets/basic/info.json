@@ -1,0 +1,29 @@
+{
+    "json_version" : 1,
+    "identity" : {
+        "type" : "dmg_widgetset",
+        "id" : "basic",
+        "version" : 1,
+        "name" : "Basic",
+        "description" : "Basic widgets for single command/sensor",
+        "creator" : "Ferllings",
+        "creator_email" : "cedric@domogik.org"
+    },
+    "widgets": {
+        "sensorNumber": {
+            "name" : "Sensor Number",
+            "height" : 2,
+            "width" : 2,
+            "parameters" : {
+                "border" : {
+                    "name": "Border",
+                    "description": "Set this to get a border around the widget",
+                    "type": "boolean",
+                    "default": "True"
+                }
+            },
+            "css" : ["sensorNumber.css"],
+            "js" : ["sensorNumber.js"]
+        }
+    }
+}

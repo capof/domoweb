@@ -22,62 +22,10 @@
 {% load i18n %}
 {% load text %}
 {% load tree %}
+{% load ssi from future %}
 
 {% block js_script %} 
-
     $(function(){
-        {% for instance in widgetinstances %}
-            {% if instance.widgetinstancecommand_set.all.0 %}
-                {% with command=instance.widgetinstancecommand_set.all.0.command event=instance.widgetinstancesensor_set.all.0.sensor %}
-
-            var parameters_usage = JSON.parse('{{command.device.usage.default_options|safe}}');
-            var options = {
-                usage: "{{ command.device.usage.id }}",
-                devicename: "{{ command.device.name }}",
-                featureid: "{{ command.id }}",
-                featurename: "{{ command.name }}",
-                featureconfirmation: "{{ command.return_confirmation }}",
-                deviceplugin: "{{ command.device.type.plugin_id }}",
-                deviceid: "{{ command.device.id }}",
-                key: "{{ command.reference }}",
-                usage_parameters: parameters_usage["actuator"]["{{ command.commandparam_set.all.0.value_type }}"],
-                params: [
-                    {% for param in command.commandparam_set.all %}
-                    {
-                        id: {{ param.id }},
-                        key: "{{ param.key }}",
-                        value_type: "{{ param.value_type }}",
-                        values: {{ param.values|safe }},
-                    },
-                    {% endfor %}
-                ],
-                initial_value:"{{ event.last_value }}",
-                eventid: {{ event.id }},
-                unit: "{{ event.unit }}",
-            }
-                {% endwith %}
-            {% else %}
-                {% with sensor=instance.widgetinstancesensor_set.all.0.sensor %}
-
-            var parameters_usage = JSON.parse('{{sensor.device.usage.default_options|safe}}');
-            var options = {
-                usage: "{{ sensor.device.usage.id }}",
-                devicename: "{{ sensor.device.name }}",
-                featureid: "{{ sensor.id }}",
-                featurename: "{{ sensor.name }}",
-                deviceplugin: "{{ sensor.device.type.plugin_id }}",
-                deviceid: "{{ sensor.device.id }}",
-                key: "{{ sensor.reference }}",
-                unit: "{{ sensor.unit }}",
-                usage_parameters: parameters_usage["sensor"]["{{ sensor.value_type }}"],
-                initial_value:"{{ sensor.last_value }}",
-                eventid: {{ sensor.id }},
-            }
-                {% endwith %}
-            {% endif %}
-            eval("$('#widgetinstance_{{ instance.id }}').{{ instance.widget_id }}(options)");
-        {% endfor %}
-
         $('#closeform').click(function() {
             $('#loginform').hide();
         });
@@ -108,42 +56,27 @@
     <link href="{{ static_iconsets_url }}/usage/default/icons.css" rel="stylesheet" type="text/css" />    
 
     <link href="{{ static_design_url }}/common/css/ui-processing.css" rel="stylesheet" type="text/css" />
-    <link href="{{ static_design_url }}/common/css/dmg.widget-core.css" rel="stylesheet" type="text/css" />    
-    <link href="{{ static_design_url }}/common/css/dmg.widget-utils.css" rel="stylesheet" type="text/css" />    
-    <link href="{{ static_widgets_url }}/dmg_4x3_colorPicker/farbtastic.css" rel="stylesheet" type="text/css" />
-
+    
     {% for widget in widgets %}
-    <link href="{{ static_widgets_url }}/{{ widget.widget_id }}/style.css" rel="stylesheet" type="text/css" />
+        {% for css in widget.widgetcss_set.all %}
+    <link href="{{ static_widgets_url }}/{{ widget.set_id }}/css/{{ css.name }}" rel="stylesheet" type="text/css" />            
+        {% endfor %}
     {% endfor %}
-
 {% endblock %}
 
 {% block js_include %}
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.ui.subclass/jquery.ui.subclass.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.timers-1.2/jquery.timers-1.2.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.ba-dotimeout-1.0/jquery.ba-dotimeout.min.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/highcharts-2.1.9/highcharts-2.1.9.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/highcharts-2.1.9/highcharts-exporting-2.1.9.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.longclick-0.3.3/jquery.longclick-0.3.3.min.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.transform/jquery.transform.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/simple-inheritance/simple-inheritance.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/kinetic-v4.1.2/kinetic-v4.1.2.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.rinor.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.processing.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.widget-core.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.widget-utils.js"></script>
-    <script type="text/javascript" src="{{ static_widgets_url }}/dmg_4x3_colorPicker/farbtastic.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/charting/dmg.chart-core.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/charting/dmg.highcharts.js"></script>
-
-    {% for widget in widgets %}
-    <script type="text/javascript" src="{{ static_widgets_url }}/{{ widget.widget_id }}/main.js"></script>	
-    {% endfor %}
-
+ 
     <script type="text/javascript" src="{{ static_design_url }}/view/js/view-page.js"></script>
     <script type="text/javascript" src="{{ static_iconsets_url }}/usage/default/icons.js"></script>
-
+    {% for widget in widgets %}
+        {% for js in widget.widgetjs_set.all %}
+    <script type="text/javascript" src="{{ static_widgets_url }}/{{ widget.set_id }}/js/{{ js.name }}"></script>
+        {% endfor %}
+    {% endfor %}
 {% endblock %}
 
 {% block title %}{{ page_title }}{% endblock %}
@@ -179,7 +112,9 @@
     <div role='main'>
         <div id='widgetsmatrix' role='list'>
             {% for instance in widgetinstances %}
-                <div id='widgetinstance_{{ instance.id }}' role='listitem'></div>
+                <div id='widgetinstance_{{ instance.id }}' role='listitem'>
+                    {% ssi instance.widget.template parsed %}
+                </div>
             {% endfor %}
         </div>
     </div>

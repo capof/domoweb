@@ -62,64 +62,80 @@ Errors: required</p>
 </div>
 <div class="section" id="type-string">
 <h2>Type: string<a class="headerlink" href="#type-string" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id1"><span class="problematic" id="id2">*</span></a>max_length (optional)
-<a href="#id3"><span class="problematic" id="id4">*</span></a>min_length (optional)
-<a href="#id5"><span class="problematic" id="id6">*</span></a>mask (optional)
-Validation: Validates max_length or min_length, if they are provided. Otherwise, all inputs are valid.
+<p>Parameters:</p>
+<ul class="simple">
+<li>max_length (optional)</li>
+<li>min_length (optional)</li>
+<li>mask (optional)</li>
+</ul>
+<p>Validation: Validates max_length or min_length, if they are provided. Otherwise, all inputs are valid.
 Errors: required, max_length, min_length</p>
 </div>
 <div class="section" id="type-choice">
 <h2>Type: choice<a class="headerlink" href="#type-choice" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id7"><span class="problematic" id="id8">*</span></a>choices : An iterable (e.g., a list or tuple) of 2-tuples to use as choices for this field.
-Validation: Validates that the given value exists in the list of choices.
+<p>Parameters:</p>
+<ul class="simple">
+<li>choices : An iterable (e.g., a list or tuple) of 2-tuples to use as choices for this field.</li>
+</ul>
+<p>Validation: Validates that the given value exists in the list of choices.
 Errors: required, invalid_choice</p>
 </div>
 <div class="section" id="type-multiplechoice">
 <h2>Type: multiplechoice<a class="headerlink" href="#type-multiplechoice" title="Permalink to this headline">¶</a></h2>
 <p>Will return a list of values separated with &#8216;,&#8217;
-Parameters:
-<a href="#id9"><span class="problematic" id="id10">*</span></a>choices : An iterable (e.g., a list or tuple) of 2-tuples to use as choices for this field.
-Validation: Validates that the given values exists in the list of choices.
+Parameters:</p>
+<ul class="simple">
+<li>choices : An iterable (e.g., a list or tuple) of 2-tuples to use as choices for this field.</li>
+</ul>
+<p>Validation: Validates that the given values exists in the list of choices.
 Errors: required, invalid_choice</p>
 </div>
 <div class="section" id="type-date">
 <h2>Type: date<a class="headerlink" href="#type-date" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id11"><span class="problematic" id="id12">*</span></a>input_formats (optional, default is %Y-%m-%d =&gt; &#8216;2006-10-25&#8217;)
-Validation: Validates that the given value respect the particular date format.
+<p>Parameters:</p>
+<ul class="simple">
+<li>input_formats (optional, default is %Y-%m-%d =&gt; &#8216;2006-10-25&#8217;)</li>
+</ul>
+<p>Validation: Validates that the given value respect the particular date format.
 Errors: required, invalid</p>
 </div>
 <div class="section" id="type-time">
 <h2>Type: time<a class="headerlink" href="#type-time" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id13"><span class="problematic" id="id14">*</span></a>input_formats (optional, default is %H:%M:%S =&gt; &#8216;14:30:59&#8217;)
-Validation: Validates that the given value respect the particular time format.
+<p>Parameters:</p>
+<ul class="simple">
+<li>input_formats (optional, default is %H:%M:%S =&gt; &#8216;14:30:59&#8217;)</li>
+</ul>
+<p>Validation: Validates that the given value respect the particular time format.
 Errors: required, invalid</p>
 </div>
 <div class="section" id="type-datetime">
 <h2>Type: datetime<a class="headerlink" href="#type-datetime" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id15"><span class="problematic" id="id16">*</span></a>input_formats (optional, default is %Y-%m-%d %H:%M:%S =&gt; &#8216;2006-10-25 14:30:59&#8217;)
-Validation: Validates that the given value respect the particular datetime format.
+<p>Parameters:</p>
+<ul class="simple">
+<li>input_formats (optional, default is %Y-%m-%d %H:%M:%S =&gt; &#8216;2006-10-25 14:30:59&#8217;)</li>
+</ul>
+<p>Validation: Validates that the given value respect the particular datetime format.
 Errors: required, invalid</p>
 </div>
 <div class="section" id="type-float">
 <h2>Type: float<a class="headerlink" href="#type-float" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id17"><span class="problematic" id="id18">*</span></a>max_value (optional)
-<a href="#id19"><span class="problematic" id="id20">*</span></a>min_value (optional)
-These control the range of values permitted in the field.
+<p>Parameters:</p>
+<ul class="simple">
+<li>max_value (optional)</li>
+<li>min_value (optional)</li>
+</ul>
+<p>These control the range of values permitted in the field.
 Validation: Validates that the given value is an float.
 Errors: required, invalid, max_value, min_value</p>
 </div>
 <div class="section" id="type-integer">
 <h2>Type: integer<a class="headerlink" href="#type-integer" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id21"><span class="problematic" id="id22">*</span></a>max_value (optional)
-<a href="#id23"><span class="problematic" id="id24">*</span></a>min_value (optional)
-These control the range of values permitted in the field.
+<p>Parameters:</p>
+<ul class="simple">
+<li>max_value (optional)</li>
+<li>min_value (optional)</li>
+</ul>
+<p>These control the range of values permitted in the field.
 Validation: Validates that the given value is an integer.
 Errors: required, invalid, max_value, min_value</p>
 </div>
@@ -135,10 +151,12 @@ Errors: required, invalid</p>
 </div>
 <div class="section" id="type-url">
 <h2>Type: url<a class="headerlink" href="#type-url" title="Permalink to this headline">¶</a></h2>
-<p>Parameters:
-<a href="#id25"><span class="problematic" id="id26">*</span></a>max_length (optional)
-<a href="#id27"><span class="problematic" id="id28">*</span></a>min_length (optional)
-Validation: Validates that the given value is a valid URL.
+<p>Parameters:</p>
+<ul class="simple">
+<li>max_length (optional)</li>
+<li>min_length (optional)</li>
+</ul>
+<p>Validation: Validates that the given value is a valid URL.
 Errors: required, invalid</p>
 </div>
 </div>

@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+
+{% load i18n %}
+{% load text %}
+{% block js_script %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+{% block js_include %}
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.stepy-1.1.0/js/jquery.stepy.min.js"></script>
+{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block body %}
+    <h1>{{ page_title }}</h1>
+    <form id="WidgetForm" method='post'>{% csrf_token %}
+        <fieldset>
+            <legend>{% trans "Widget parameters" %}</legend>
+            {{ parametersform.non_field_errors }}
+            {% for field in parametersform %}
+                <div class='row'>
+                    {{ field.errors }}
+                    <label for="{{ field.auto_id }}" class="{% if field.field.required %} required{% endif %}">
+                       {{ field.label }} {% if field.field.required %}<span class="offscreen"> {% trans "(required)" %}</span>{% endif %}</span>
+                    </label>
+                    {{ field }}
+                </div>
+            {% endfor %}                
+        </fieldset>
+        <input type="submit" class="finish" value="{% trans "Save" %}" />
+    </form>
+{% endblock %}

@@ -25,85 +25,53 @@
 {% block js_include %}
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.ui.subclass/jquery.ui.subclass.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.dragdrop.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.widget-core.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.widget-utils.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.rinor.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/simplemodal-basic-1.4.3/js/jquery.simplemodal.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/view/js/elements-page.js"></script>
-
-    {% for widget in widgets %}
-    <script type="text/javascript" src="{{ static_widgets_url }}/{{ widget.id }}/main.js"></script>	
-    {% endfor %}
-
 {% endblock %}
 
 {% block js_script %}
     $(function() {
-        $('#widgetsmatrix').droppable({
-                activeClass: 'state-active',
-                hoverClass: 'state-hover',
-                accept: function(draggable) {
-                    return (draggable.hasClass('shape'));
-                },
-                drop: ondrop
-        })
-
-        $("a#save").click(function() {
-            $("#pageForm").submit();
-        });
-
-        $("#configpanel").on("click", ".remove_widget", function() {
-            var id = $(this).data("instanceid");
-            $("#widgetinstance_" + id).remove();
-            $("#configinstance_" + id).remove();
-        });
-        
-        $("#widgetsmatrix").on("click", ".shape", function() {
-            var id = $(this).data("instanceid");
-            $("#configpanel > article").hide();
-            $("#configinstance_" + id).show();
-        });
-
-        {% for instance in widgetinstances %}
-            {% if instance.widgetinstancecommand_set.all.0 %}
-                {% with command=instance.widgetinstancecommand_set.all.0.command %}
-                $("#widgetinstance_{{ instance.id }}").widget_shape({
-                    widgetid: '{{ instance.widget_id }}',
-                    featureid: '{{ command.id }}',
-                    featuretype: 'actuator',
-                    devicename: '{{ command.device.name }}',
-                    featurename: '{{ command.name }}',
+	$('#show_widgets').click(function (e) {
+            $('#widgets_list').modal();
+            return false;
+	});
+        $(document).on('click', '.del_widget', function (e) {
+            widget_id = $(this).attr('widget-id');
+            rinor.delete(['api', 'widgetinstance', widget_id])
+                .done(function(data, status, xhr){
+                    $('#widget_' + widget_id).remove();
+                })
+                .fail(function(jqXHR, status, error){
+                    if (jqXHR.status == 400)
+                        $.notification('error', "{% trans "Widget not deleted" %} (" + jqXHR.responseText + ")");
                 });
-                {% endwith %}
-            {% else %}
-                {% with sensor=instance.widgetinstancesensor_set.all.0.sensor %}
-                $("#widgetinstance_{{ instance.id }}").widget_shape({
-                    widgetid: '{{ instance.widget_id }}',
-                    featureid: '{{ sensor.id }}',
-                    featuretype: 'sensor',
-                    devicename: '{{ sensor.device.name }}',
-                    featurename: '{{ sensor.name }}',
+	});
+        $('.add_widget').click(function (e) {
+            widget_id = $(this).attr('widget-id');
+            rinor.post(['api', 'widgetinstance'], {'page_id': {{ page.id }}, 'widget_id': widget_id})
+                .done(function(data, status, xhr){
+                    console.log(data);
+                    $('#widgetinstances').append("<li id='widget_" + data.id + "'>" + data.id + " - " + data.widget_id + " <button widget-id='" + data.id + "' class='conf_widget'>configure</button><button widget-id='" + data.id + "' class='del_widget'>delete</button></li>");
+                    $.modal.close();
+                })
+                .fail(function(jqXHR, status, error){
+                    if (jqXHR.status == 400)
+                        $.notification('error', "{% trans "Widget not created" %} (" + jqXHR.responseText + ")");
                 });
-                {% endwith %}
-            {% endif %}
-        {% endfor %}
+	});
     });
-
 {% endblock %}
 
 {% block css %}
     <link href="{{ static_design_url }}/common/css/ui-buttons.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/view/css/elements-page.css" rel="stylesheet" type="text/css" />
-    <link href="{{ static_design_url }}/common/css/dmg.widget-core.css" rel="stylesheet" type="text/css" />    
-    <link href="{{ static_design_url }}/common/css/dmg.widget-utils.css" rel="stylesheet" type="text/css" />    
-    <link href="{{ static_design_url }}/common/css/ui-dialog.css" rel="stylesheet" type="text/css" />
+    <link href="{{ static_design_url }}/libraries/simplemodal-basic-1.4.3/css/basic.css" rel="stylesheet" type="text/css" />
 
     {% for iconset in iconsets %}
     <link href="{{ static_iconsets_url }}/page/{{ iconset.iconset_id }}/icons.css" rel="stylesheet" type="text/css" />    
     {% endfor %}
 
-    {% for widget in widgets %}
-    <link href="{{ static_widgets_url }}/{{ widget.id }}/style.css" rel="stylesheet" type="text/css" />
-    {% endfor %}
 {% endblock %}
 
 {% block title %}{{ page_title }}{% endblock %}
@@ -120,93 +88,22 @@
             </ul>
         </nav>
     </header>
-    <div role='main'>
-        <div id='dialog' title='Place yours widgets'>
-            <div id='devices'>
-                <ul>
-                {% regroup devices|dictsort:"usage_id" by usage as usages %}
-                {% for usage in usages %}
-                    <li><div class='subcategory icon16-usage-{{ usage.grouper.id }}'>{{usage.grouper.name }}</div>
-                        <ul>
-                            {% for device in usage.list %}
-                            <li><button id='showdevice{{device.id}}' deviceid='{{device.id}}' class='device'>{{ device.name }} ({{ device.type.name }})</button></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-            <div id='features'>
-                {% for device in devices %}
-                <ul id="features{{device.id}}" class='features'>
-                    <li><div class='subcategory'>Sensors</div>
-                        <ul>
-                            {% for sensor in device.sensor_set.all %}
-                            <li><button id='showsensor{{sensor.id}}' class='feature' featureid='{{ sensor.id }}' devicename='{{device.name }}' featurename='{{ sensor.name }}' featuretype='sensor.{{ sensor.value_type }}'>{{ sensor.name }}</button></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    <li><div class='subcategory'>Commands</div>
-                        <ul>
-                            {% for command in device.command_set.all %}
-                            <li><button id='showcommand{{command.id}}' class='feature' featureid='{{ command.id }}' devicename='{{device.name }}' featurename='{{ command.name }}' featuretype='actuator.{{ command.commandparam_set.all.0.value_type }}'>{{ command.name }}</button></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                </ul>
-                {% endfor %}
-            </div>
-            <div id='widgets'>
-                <ul>
-                </ul>
-            </div>
-            <div id='model'>
-                <dl>
-                    <dt class='model'></dt>
-                    <dd class='dragdrop'>({% trans "Drag & drop this wigdet to the page" %})</dd>
-                    <dd class='model'></dd>
-                    <dt class='version'>{% trans "Version" %}:</dt>
-                    <dd class='version'></dd>
-                    <dt class='author'>{% trans "Author" %}:</dt>
-                    <dd class='author'></dd>
-                    <dt class='description'>{% trans "Description" %}:</dt>
-                    <dd class='description'></dd>
-                    <dt class='screenshot'>{% trans "Screenshot" %}:</dt>
-                    <dd class='screenshot'></dd>
-                </dl>
-            </div>
-        </div>
-        
-        <form action="{% url page_elements_view page.id %}" id="pageForm" method="post">
-            <div id='matrixbackground'>
-                <section id='configpanel'>
-                    {% for instance in widgetinstances %}
-                        <article id='configinstance_{{ instance.id }}' style='display: none'>
-                            <h2>Widget {{ instance.id }} parameters</h2>
-                            <p><a href='#' class='remove_widget' data-instanceid="{{ instance.id }}" role='button'>{% trans "Remove" %}</a></p>
-                            {% if instance.widgetinstancecommand_set.all.0 %}
-                                {% with command=instance.widgetinstancecommand_set.all.0.command event=instance.widgetinstancesensor_set.all.0.sensor %}
-                                <div class='row'>
-                                <label for='instance_{{ instance.id }}_sensor'>Sensor :</label>
-                                <select id='instance_{{ instance.id }}_sensor' name='instance[{{ instance.id }}][sensor]'>
-                                    {% for sensor in command.device.sensor_set.all %}
-                                    <option value='{{ sensor.id }}'{% if sensor.id = event.id %} selected{% endif %}>{{ sensor.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                </div>
-                                {% endwith %}
-                            {% endif %}
-                        </article>
-                    {% endfor %}
-                </section>
-                <div id='widgetsmatrix' role="list">
-                    {% for instance in widgetinstances %}
-                        <div id='widgetinstance_{{ instance.id }}' role='listitem' class='widgetinstance' data-instanceid='{{ instance.id }}'>
-                            <input type='hidden' name='instance[{{ instance.id }}][instance]' value='{{ instance.id }}' />
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </form>
+    <div id="widgets_list" class="modal">
+        <h2>Choose a Widget</h2>
+        <ul>
+        {% for widget in widgets %}
+            <li><button class='add_widget' widget-id='{{ widget.id }}'>{{ widget.name }}</button></li>
+        {% endfor %}
+        </ul>
     </div>
+    <section role='main'>
+        <ul id='widgetinstances'>
+        {% for instance in widgetinstances %}
+            <li id='widget_{{ instance.id }}'>{{ instance.id }} - {{ instance.widget_id }} <a href='{% url page_widget_configure_view instance.id %}'>configure</a><button widget-id='{{ instance.id }}' class='del_widget'>delete</button></li>
+        {% endfor %}
+        </ul>
+        <button id='show_widgets'>Add widget</button>
+    </section>
+    
+
 {% endblock %}

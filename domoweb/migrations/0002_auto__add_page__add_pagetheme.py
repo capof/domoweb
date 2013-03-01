@@ -61,9 +61,9 @@ class Migration(SchemaMigration):
         },
         'domoweb.widgetinstance': {
             'Meta': {'object_name': 'WidgetInstance'},
-            'feature_id': ('django.db.models.fields.IntegerField', [], {}),
+            'feature_id': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {}),
+            'order': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'page_id': ('django.db.models.fields.IntegerField', [], {}),
             'widget_id': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         }
