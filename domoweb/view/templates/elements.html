@@ -68,6 +68,9 @@
                         <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
                             <h2>Widget {{ instance.widget_id }} parameters</h2>
                             <p><button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button></p>
+                            <div class='widget_parameters'>
+                                {% include 'widget_parameters.html' %}
+                            </div>
                         </div>
                     {% endfor %}
                 </section>

@@ -1,0 +1,21 @@
+{% with widget=instance.widget %}
+<h3>Sensors</h3>
+{% for param in widget.widgetsensorparameter_set.all %}
+    <div class='row'>
+        <label for=''>{{ param.name }}</label>
+        <select>
+            {% for device in devices %}
+                <optgroup label="{{ device.name }}">
+                {% for sensor in device.sensor_set.all %}
+                    {% if sensor.value_type in param.types_as_list %}
+                    <option>{{ sensor.name }}</option>
+                    {% endif %}
+                {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+{% endfor %}
+<h3>Commands</h3>
+<h3>Parameters</h3>
+{% endwith %}

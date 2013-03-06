@@ -59,11 +59,13 @@ class LoaderTask(threading.Thread):
         self.updateStatus('finished')
 
     def loadWidgets(self):
-        from domoweb.models import Widget, WidgetParameter, WidgetCSS, WidgetJS
+        from domoweb.models import Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, WidgetCSS, WidgetJS
         root = self.project['packs']['widgets']['root']
         # List available widgets
         Widget.objects.all().delete()
         WidgetParameter.objects.all().delete()
+        WidgetSensorParameter.objects.all().delete()
+        WidgetCommandParameter.objects.all().delete()
         if os.path.isdir(root):
             for file in os.listdir(root):
                 if not file.startswith('.'): # not hidden file
@@ -86,6 +88,30 @@ class LoaderTask(threading.Thread):
                                 p = WidgetParameter(widget_id=widget_id, key=pid, name=param['name'], description=param['description'], type=param['type'])
                                 if 'default' in param:
                                     p.default = param['default']
+                                if 'required' in param:
+                                    p.required = param['required']
+                                else:
+                                    p.required = True
+                                p.save()
+                            # Sensors parameters
+                            for pid, param in widget['sensors'].items():
+                                p = WidgetSensorParameter(widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=(', '.join(param['types'])))
+                                if 'filters' in param:
+                                    p.filters = ', '.join(param['filters'])
+                                if 'required' in param:
+                                    p.required = param['required']
+                                else:
+                                    p.required = True
+                                p.save()
+                            # Command parameters
+                            for pid, param in widget['commands'].items():
+                                p = WidgetCommandParameter(widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=(', '.join(param['types'])))
+                                if 'filters' in param:
+                                    p.filters = ', '.join(param['filters'])
+                                if 'required' in param:
+                                    p.required = param['required']
+                                else:
+                                    p.required = True
                                 p.save()
                             # CSS Files
                             for name in widget['css']:

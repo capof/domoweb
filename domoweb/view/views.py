@@ -163,6 +163,7 @@ def page_elements(request, id):
 
     widgets = Widget.objects.all()
     widgetinstances = WidgetInstance.objects.filter(page_id = id)
+    devices = Device.objects.all()
     
     return go_to_page(
         request, 'elements.html',
@@ -171,6 +172,7 @@ def page_elements(request, id):
         iconsets=iconsets,
         widgets=widgets,
         widgetinstances=widgetinstances,
+        devices=devices,
     )
 
 @admin_required

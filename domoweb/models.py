@@ -28,6 +28,32 @@ class WidgetParameter(models.Model):
     default = models.CharField(max_length=50, blank=True)
     description = models.CharField(max_length=255)
 
+class WidgetSensorParameter(models.Model):
+    id = models.AutoField(primary_key=True)
+    widget = models.ForeignKey(Widget)
+    key = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    required = models.BooleanField()
+    types = models.CharField(max_length=255)
+    filters = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    def types_as_list(self):
+        return self.types.split(', ')
+
+class WidgetCommandParameter(models.Model):
+    id = models.AutoField(primary_key=True)
+    widget = models.ForeignKey(Widget)
+    key = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    required = models.BooleanField()
+    types = models.CharField(max_length=255)
+    filters = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    def types_as_list(self):
+        return self.types.split(', ')
+
 class WidgetJS(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
@@ -301,19 +327,19 @@ class WidgetInstance(models.Model):
 class WidgetInstanceParam(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
+    param = models.ForeignKey(WidgetParameter, on_delete=models.DO_NOTHING)
     value = models.CharField(max_length=50)
 
 class WidgetInstanceSensor(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
+    param = models.ForeignKey(WidgetSensorParameter, on_delete=models.DO_NOTHING)
     sensor = models.ForeignKey(Sensor, on_delete=models.DO_NOTHING)
 
 class WidgetInstanceCommand(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
+    param = models.ForeignKey(WidgetCommandParameter, on_delete=models.DO_NOTHING)
     command = models.ForeignKey(Command, on_delete=models.DO_NOTHING)
     
 class Person(RestModel):

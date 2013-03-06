@@ -5,7 +5,7 @@
         "id" : "basic",
         "version" : 1,
         "name" : "Basic",
-        "description" : "Basic widgets for single command/sensor",
+        "description" : "Basic widgets for single sensor",
         "creator" : "Ferllings",
         "creator_email" : "cedric@domogik.org"
     },
@@ -22,6 +22,14 @@
                     "default": "True"
                 }
             },
+            "sensors" : {
+                "primary" : {
+                    "name": "Main",
+                    "description": "Select the number sensor",
+                    "types" : ["number"]
+                }
+            },
+            "commands" : {},
             "css" : ["sensorNumber.css"],
             "js" : ["sensorNumber.js"]
         }

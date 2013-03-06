@@ -54,7 +54,7 @@ from django.forms.widgets import Select
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
-from domoweb.models import Parameter, Widget, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DeviceType, DeviceUsage, Device, Command, CommandParam, Sensor
+from domoweb.models import Parameter, Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DeviceType, DeviceUsage, Device, Command, CommandParam, Sensor
 
 def login(request):
     """
@@ -460,6 +460,18 @@ class WidgetTable(tables.Table):
     class Meta:
         model = Widget
 
+class WidgetParameterTable(tables.Table):
+    class Meta:
+        model = WidgetParameter
+
+class WidgetSensorParameterTable(tables.Table):
+    class Meta:
+        model = WidgetSensorParameter
+
+class WidgetCommandParameterTable(tables.Table):
+    class Meta:
+        model = WidgetCommandParameter
+
 class ParameterTable(tables.Table):
     class Meta:
         model = Parameter
@@ -526,6 +538,9 @@ def admin_core_domowebdata(request):
     page_title = _("Domoweb Data")
     
     widget_table = WidgetTable(Widget.objects.all())
+    widgetparameter_table = WidgetParameterTable(WidgetParameter.objects.all())
+    widgetsensorparameter_table = WidgetSensorParameterTable(WidgetSensorParameter.objects.all())
+    widgetcommandparameter_table = WidgetCommandParameterTable(WidgetCommandParameter.objects.all())
     parameter_table = ParameterTable(Parameter.objects.all())
     pageicon_table = PageIconTable(PageIcon.objects.all())
     widgetinstance_table = WidgetInstanceTable(WidgetInstance.objects.all())
@@ -548,6 +563,9 @@ def admin_core_domowebdata(request):
         nav2_core_domowebdata = "selected",
         parameter_table = parameter_table,
         widget_table = widget_table,
+        widgetparameter_table = widgetparameter_table,
+        widgetsensorparameter_table = widgetsensorparameter_table,
+        widgetcommandparameter_table = widgetcommandparameter_table,
         pageicon_table = pageicon_table,
         widgetinstance_table = widgetinstance_table,
         widgetinstanceparam_table = widgetinstanceparam_table,
