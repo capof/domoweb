@@ -54,6 +54,7 @@ from django.forms.widgets import Select
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
+from domoweb.models import Parameter, Widget, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
 from domoweb.models import Parameter, Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DeviceType, DeviceUsage, Device, Command, CommandParam, Sensor
 
 def login(request):
@@ -168,7 +169,12 @@ def admin_plugins_plugin(request, plugin_host, plugin_id, plugin_type):
     plugin = PluginPipe().get_detail(plugin_host, plugin_id)
     devices = Device.objects.filter(type__plugin_id=plugin.id)
     types = DeviceType.objects.filter(plugin_id=plugin.id)
-    products = ProductsPipe().get_list(plugin_id)
+
+    if plugin_id == "rfxcom-lan":
+        products = ProductsPipe().get_list("rfxcom")
+    else:
+        products = ProductsPipe().get_list(plugin_id)
+
     if plugin_type == "plugin":
         page_title = _("Plugin")
         dependencies = PluginDependencyPipe().get_list(plugin_host, plugin_id)
@@ -221,29 +227,26 @@ class MyModelChoiceField(forms.ModelChoiceField):
     
 class DeviceForm(forms.Form):
     name = forms.CharField(max_length=50, label=_("Name"), required=True)
-    usage_id = MyModelChoiceField(widget=SelectIcon, queryset=DeviceUsage.objects.all(), label=_("Usage"), required=True)
     reference = forms.CharField(max_length=50, label=_("Hardware/Software Reference"), required=False)
     type_id = forms.CharField(widget=forms.HiddenInput, required=True)
 
     def __init__(self, *args, **kwargs):
         # This should be done before any references to self.fields
         super(DeviceForm, self).__init__(*args, **kwargs)
-        #init the choice list on Form init (and not on django load)
-#        self.fields["usage_id"] = 
 
-    def clean(self):
-        cleaned_data = super(DeviceForm, self).clean()
-        usage = cleaned_data.get("usage_id")
-        if usage:
-            cleaned_data["usage_id"] = usage.id
-
-        # Always return the full collection of cleaned data.
-        return cleaned_data
-    
+   
 class ParametersForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        self.name = kwargs.pop('name', None)
+        self.id = kwargs.pop('id', None)
+        self.params = kwargs.pop('params', None)
+        self.prefix = kwargs.pop('prefix', None)
+        kwargs['auto_id'] = '%s'
         # This should be done before any references to self.fields
         super(ParametersForm, self).__init__(*args, **kwargs)
+        if self.params:
+            for parameter in self.params:
+                self.addCharField(('%s-%s-%s')%(self.prefix, self.id, parameter.key), parameter.description, required=True)
 
     def addCharField(self, key, label, required=False, max_length=50):
         self.fields[key] = forms.CharField(label=label, required=required, max_length=max_length)
@@ -257,6 +260,13 @@ class ParametersForm(forms.Form):
 
     def validate(self): self.full_clean()
 
+    def getData(self):
+        data = {}
+        for key, cd in self.cleaned_data.items():
+            key = key.replace(('%s-%s-')%(self.prefix, self.id), "")
+            data[key] = cd
+        return data
+    
 @admin_required
 def admin_add_device(request, plugin_host, plugin_id, plugin_type, type_id):
     page_title = _("Add device")
@@ -269,30 +279,21 @@ def admin_add_device(request, plugin_host, plugin_id, plugin_type, type_id):
             globalparametersform.addCharField(parameter.key, parameter.description, required=True)
 
     commands = []
-    """
+    hasscommandsparamters = 0
     for command in parameters["xpl_cmd"]:
-        commandid = command.id.replace('.','-')
-        commanddict = {'id':commandid, 'name':command.name}
+        form = ParametersForm(id=command.id, name=command.name, params=command.params, prefix='cmd')
+        commands.append(form)
         if command.params:
-            commandparametersform = ParametersForm(auto_id='cmd_' + commandid + '_%s')
-            for parameter in command.params:
-                commandparametersform.addCharField(parameter.key, parameter.description, required=True)
-            commandict['form'] = commandparametersform
-        commands.append(commanddict)
-    """
+            hasscommandsparamters = 1
+
     stats = []
-    """
+    hasstatsparamters = 0
     for stat in parameters["xpl_stat"]:
-        statid = stat.id.replace('.','-')
-        statdict = {'id':statid, 'name':stat.name }
+        form = ParametersForm(id=stat.id, name=stat.name, params=stat.params, prefix='stat')
+        stats.append(form)
         if stat.params:
-            statparametersform = ParametersForm(auto_id='stat_' + commandid + '_%s')
-            for parameter in stat.params:
-                statparametersform.addCharField(parameter.key, parameter.description, required=True)
-            statdict['form'] = statparametersform
-        stats.append(statdict)
-    """
-    
+            hasstatsparamters = 1
+
     if request.method == 'POST':
         valid = True
         deviceform = DeviceForm(request.POST) # A form bound to the POST data
@@ -301,23 +302,25 @@ def admin_add_device(request, plugin_host, plugin_id, plugin_type, type_id):
             globalparametersform.setData(request.POST)
             globalparametersform.validate()
             valid = valid and globalparametersform.is_valid()
-        """
         for command in commands:
-            print command
-            if 'form' in command:
-                command.form.setData(request.POST)
-                command.form.validate()
-                valid = valid and command.form.is_valid()
+            command.setData(request.POST)
+            command.validate()
+            valid = valid and command.is_valid()
         for stat in stats:
-            if 'form' in stat:
-                stat.form.setData(request.POST)
-                stat.form.validate()
-                valid = valid and stat.form.is_valid()
-        """
+            stat.setData(request.POST)
+            stat.validate()
+            valid = valid and stat.is_valid()
         if valid:
             cd = deviceform.cleaned_data
-            device = Device.create(cd["name"], cd["type_id"], cd["usage_id"], cd["reference"])
-            device.create_params(parameters=globalparametersform.cleaned_data)
+            device = Device.create(cd["name"], cd["type_id"], cd["reference"])
+            if globalparametersform:
+                device.add_global_params(parameters=globalparametersform.cleaned_data)
+            for command in commands:
+                if command.params:
+                    device.add_xplcmd_params(id=command.id, parameters=command.getData())
+            for stat in stats:
+                if stat.params:
+                    device.add_xplstat_params(id=stat.id, parameters=stat.getData())
             return redirect('admin_plugins_plugin_view', plugin_host=plugin_host, plugin_id=plugin_id, plugin_type=plugin_type) # Redirect after POST
     else:
         deviceform = DeviceForm(auto_id='main_%s', initial={'type_id': type_id})
@@ -330,6 +333,8 @@ def admin_add_device(request, plugin_host, plugin_id, plugin_type, type_id):
         plugin_type=plugin_type,
         deviceform=deviceform,
         globalparametersform=globalparametersform,
+        hasscommansparamters=hasscommandsparamters,
+        hasstatsparamters=hasstatsparamters,
         commands=commands,
         stats=stats,
     )
@@ -503,6 +508,7 @@ class PageThemeTable(tables.Table):
 class PageTable(tables.Table):
     class Meta:
         model = Page
+
 class DeviceTable(tables.Table):
     class Meta:
         model = Device
@@ -511,9 +517,9 @@ class DeviceTypeTable(tables.Table):
     class Meta:
         model = DeviceType
 
-class DeviceUsageTable(tables.Table):
+class DataTypeTable(tables.Table):
     class Meta:
-        model = DeviceUsage
+        model = DataType
 
 class CommandTable(tables.Table):
     class Meta:
@@ -551,7 +557,7 @@ def admin_core_domowebdata(request):
     page_table = PageTable(Page.objects.all())
     device_table = DeviceTable(Device.objects.all())
     devicetype_table = DeviceTypeTable(DeviceType.objects.all())
-    deviceusage_table = DeviceUsageTable(DeviceUsage.objects.all())
+    datatype_table = DataTypeTable(DataType.objects.all())
     command_table = CommandTable(Command.objects.all())
     commandparam_table = CommandParamTable(CommandParam.objects.all())
     sensor_table = SensorTable(Sensor.objects.all())
@@ -575,7 +581,7 @@ def admin_core_domowebdata(request):
         page_table = page_table,
         device_table = device_table,
         devicetype_table = devicetype_table,
-        deviceusage_table = deviceusage_table,
+        datatype_table = datatype_table,
         command_table = command_table,
         commandparam_table = commandparam_table,
         sensor_table = sensor_table,
@@ -696,7 +702,7 @@ def admin_core_deviceupgrade(request):
             cleaned_data = frm.clean()
             old = cleaned_data['old']
             new = cleaned_data['new']
-	    msg = 'post done ' + old + '  ' + new
+            msg = 'post done ' + old + '  ' + new
             old = old.split('-')
             new = new.split('-')
             Device.do_upgrade(old[0], old[1], new[0], new[1])       

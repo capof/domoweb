@@ -8,15 +8,12 @@ if sys.version_info < (2, 6):
 import os, os.path
 import pwd
 import commands
-#import pickle
 
 import cherrypy
 from cherrypy.process import plugins
 from django.conf import settings
 
 import domoweb
-from wsPlugin import WSPlugin
-#from mqPlugin import MQPlugin
 from eventsPlugin import EventsPlugin
 from corePlugin import CorePlugin
 from loaderPlugin import LoaderPlugin
@@ -106,7 +103,7 @@ def main():
     }
 
     plugins.PIDFile(engine, "/var/run/domoweb/domoweb.pid").subscribe()
-    WSPlugin(engine).subscribe()
+    #WSPlugin(engine).subscribe()
 
     # Loading django config for database connection
     load_config(project)

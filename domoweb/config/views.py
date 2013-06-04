@@ -203,6 +203,9 @@ def config_loadrinordata(request):
     @param request : the HTTP request
     @return an HttpResponse object
     """
+    from domoweb.restModel import RestModel
+    from domoweb.models import Parameter, DeviceType, Device
+
     ip = Parameter.objects.get(key='rinor_ip')
     port = Parameter.objects.get(key='rinor_port')
     try:
@@ -214,7 +217,6 @@ def config_loadrinordata(request):
     
     RestModel.setRestUri(uri)
     DeviceType.refresh()
-    DeviceUsage.refresh()
     Device.refresh()
 
     return redirect('index_view') # Redirect after POST

@@ -7,7 +7,40 @@
             id: 'dmg_1x1_basicSensorNumber',
             name: 'Basic widget',
             description: 'Basic widget with border and name',
-            type: 'sensor.number',
+            type: 'sensor',
+	    supported : ["DT_Number",
+		"DT_Scaling",
+		"DT_Angle",
+		"DT_Brightness",
+		"DT_Temp",
+		"DT_TempK",
+		"DT_TempF",
+		"DT_Pression",
+		"DT_Humidity",
+		"DT_AirQuality",
+		"DT_Volt",
+		"DT_mVolt",
+		"DT_kVolt",
+		"DT_Current",
+		"DT_mCurrent",
+		"DT_kCurrent",
+		"DT_Power",
+		"DT_mPower",
+		"DT_kPower",
+		"DT_ActiveEnergy",
+		"DT_kActiveEnergy",
+		"DT_ApparantEnergy",
+		"DT_Speed",
+		"DT_kmhSpeed",
+		"DT_Year",
+		"DT_Month",
+		"DT_Day",
+		"DT_Hour",
+		"DT_minute",
+		"DT_Second",
+		"DT_mSecond",
+		"DT_Timestamp"
+	    ],
             height: 1,
             width: 1,
             displayname: true,
@@ -21,8 +54,8 @@
         _init: function() {
             var self = this, o = this.options;
 
-            this.element.addClass("icon32-usage-" + o.usage)
-                .addClass('clickable');
+            this.element.addClass('clickable');
+//            this.element.addClass("icon32-usage-" + o.usage);
             this._value =  $("<div class='value'></div>");
             this.element.append(this._value);
 
@@ -58,7 +91,7 @@
             var self = this, o = this.options;
             if (value !== null && value !== '') {
                 this.element.displayIcon('known');             
-                this._value.html(value + '<br />' + o.unit)
+                this._value.html(value + '<br />' + o.dataparameters.unit)
                 if (this.previousValue) {
                     if (value == this.previousValue) {
                         this._status.attr('class', 'widget_status icon8-status-equal')
@@ -73,7 +106,7 @@
                 }
             } else { // Unknown
                 this.element.displayIcon('unknown');             
-                this._value.html('--<br />' + o.unit)
+                this._value.html('--<br />' + o.dataparameters.unit)
             }
             this.previousValue = value;
         },
@@ -131,8 +164,6 @@
                 self.show_graph('8h', 0);
             });
 
-
-
             var previous = $("<li class='previous'><button disabled='disabled'>Previous</button></li>");
             var next = $("<li class='next'><button disabled='disabled'>Next</button></li>");
 
@@ -174,10 +205,9 @@
                 });
             }
             chart.highcharts.show({
-                device_id: o.deviceid,
-                key: o.key,
+                feature_id: o.featureid,
                 name: o.featurename,
-                unit: o.unit,
+                unit: o.dataparameters.unit,
                 type: type,
                 shift: shift
             }).always(function(){
