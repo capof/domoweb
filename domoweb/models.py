@@ -201,21 +201,20 @@ class DeviceType(RestModel):
             r = DeviceType(id=record.id, name=record.name, plugin_id=record.plugin_id)
             r.save()
 
-class DeviceUsage(RestModel):
+class DataType(RestModel):
     id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=50)
-    default_options = models.CharField(max_length=255)
+    parameters = models.TextField()
     
-    list_path = "/base/device_usage/list"
-    index = 'device_usage'
+    list_path = "/base/datatype"
+    index = "datatypes"
 
     @staticmethod
     def refresh():
-        _data = DeviceUsage.get_list();
-        DeviceUsage.objects.all().delete()
-        for record in _data:
-            options = record.default_options.replace('&quot;', '"')
-            r = DeviceUsage(id=record.id, name=record.name, default_options=options)
+        import json
+        _data = DataType.get_list()[0];
+        DataType.objects.all().delete()
+        for type, params in _data.iteritems():
+            r = DataType(id=type, parameters=json.dumps(params))
             r.save()
 
 class Device(RestModel):
@@ -223,13 +222,14 @@ class Device(RestModel):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
     reference = models.CharField(max_length=255)
-    usage = models.ForeignKey(DeviceUsage, blank=True, null=True, on_delete=models.DO_NOTHING)
     type = models.ForeignKey(DeviceType, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     list_path = "/base/device/list"
     delete_path = "/base/device/del"
     create_path = "/base/device/add"
-    addparams_path = "/base/device/addglobal"
+    addglobal_path = "/base/device/addglobal"
+    addxplcmd_path = "/base/device/xplcmdparams"
+    addxplstat_path = "/base/device/xplstatparams"
     listupgrade_path = "/base/device/list-upgrade"
     doupgrade_path = "/base/device/upgrade"
     index = 'device'
@@ -239,7 +239,10 @@ class Device(RestModel):
         _data = Device.get_list();
         Device.objects.all().delete()
         Command.objects.all().delete()
+        CommandParam.objects.all().delete()
         Sensor.objects.all().delete()
+        XPLCmd.objects.all().delete()
+        XPLStat.objects.all().delete()
         for record in _data:
             Device.create_from_json(record)
 
@@ -248,37 +251,71 @@ class Device(RestModel):
         super(Device, self).delete(*args, **kwargs)
 
     @classmethod
-    def create(cls, name, type_id, usage_id, reference):
-        data = ['name', name, 'type_id', type_id, 'usage_id', usage_id, 'description', '', 'reference', reference]
+    def create(cls, name, type_id, reference):
+        data = ['name', name, 'type_id', type_id, 'usage_id', 'none', 'description', '', 'reference', reference]
         rinor_device = cls.post_list(data)
         device = cls.create_from_json(rinor_device)
         return device
     
     @classmethod
     def create_from_json(cls, data):
-        device = cls(id=data.id, name=data.name, type_id=data.device_type_id, usage_id=data.device_usage_id, reference=data.reference)
+        device = cls(id=data.id, name=data.name, type_id=data.device_type_id, reference=data.reference)
         device.save()
         if "command" in data:
             for command in data.command:
                 c = Command(id=command.id, name=command.name, device=device, reference=command.reference, return_confirmation=command.return_confirmation)
                 c.save()
                 for param in command.command_param:
-                    values = param['values'].replace("u'", "'") # patch for #1659
-                    p = CommandParam(command=c, key=param.key, value_type=param.value_type, values=values)
+                    p = CommandParam(command=c, key=param.key, datatype_id=param.data_type)
                     p.save()
         if "sensor" in data:
             for sensor in data.sensor:
-                values = sensor['values'].replace("u'", "'") # patch for #1659
-                s = Sensor(id=sensor.id, name=sensor.name, device=device, reference=sensor.reference, value_type=sensor.value_type, unit=sensor.unit, values=values, last_value=sensor.last_value, last_received=sensor.last_received)
+                s = Sensor(id=sensor.id, name=sensor.name, device=device, reference=sensor.reference, datatype_id=sensor.data_type, last_value=sensor.last_value, last_received=sensor.last_received)
                 s.save()
+        if "xpl_command" in data:
+            for xpl_command in data.xpl_command:
+                c = XPLCmd(id=xpl_command.id, device_id= device.id, json_id=xpl_command.json_id)
+                c.save()
+        if "xpl_stat" in data:
+            for xpl_stat in data.xpl_stat:
+                c = XPLStat(id=xpl_stat.id, device_id= device.id, json_id=xpl_stat.json_id)
+                c.save()
         return device
 
-    def create_params(self, parameters):
+    def add_global_params(self, parameters):
         params = ['id', self.id]
         params.extend(list(reduce(lambda x, y: x + y, parameters.items())))
-        _data = Device._put_data(Device.addparams_path, params)
+        _data = Device._put_data(Device.addglobal_path, params)
         if _data.status == "ERROR":
             raise RinorError(_data.code, _data.description)
+
+    def add_xplcmd_params(self, id, parameters):
+        try:
+            # Find the db id, based on the json id
+            xplcmd = XPLCmd.objects.get(device_id=self.id, json_id=id)
+        except XPLCmd.DoesNotExist:
+            pass
+        else:
+            params = ['id', xplcmd.id]
+            if parameters:
+                params.extend(list(reduce(lambda x, y: x + y, parameters.items())))
+            _data = Device._put_data(Device.addxplcmd_path, params)
+            if _data.status == "ERROR":
+                raise RinorError(_data.code, _data.description)
+
+    def add_xplstat_params(self, id, parameters):
+        try:
+            # Find the db id, based on the json id
+            xplstat = XPLStat.objects.get(device_id=self.id, json_id=id)
+        except XPLStat.DoesNotExist:
+            pass
+        else:
+            params = ['id', xplstat.id]
+            if parameters:
+                params.extend(list(reduce(lambda x, y: x + y, parameters.items())))
+            _data = Device._put_data(Device.addxplstat_path, params)
+            if _data.status == "ERROR":
+                raise RinorError(_data.code, _data.description)
     
     @classmethod
     def list_upgrade(cls):
@@ -293,6 +330,16 @@ class Device(RestModel):
         ret = cls._post_data(cls.doupgrade_path, data)
         if ret.status == "ERROR":
             raise RinorError(ret.code, ret.description)
+
+class XPLCmd(RestModel):
+    id = models.IntegerField(primary_key=True)
+    device_id = models.IntegerField()
+    json_id = models.CharField(max_length=50)
+
+class XPLStat(RestModel):
+    id = models.IntegerField(primary_key=True)
+    device_id = models.IntegerField()
+    json_id = models.CharField(max_length=50)
     
 class Command(RestModel):
     id = models.IntegerField(primary_key=True)
@@ -305,17 +352,14 @@ class CommandParam(RestModel):
     id = models.AutoField(primary_key=True)
     command = models.ForeignKey(Command)
     key = models.CharField(max_length=50)
-    value_type = models.CharField(max_length=50)
-    values = models.CharField(max_length=50)
+    datatype = models.ForeignKey(DataType, on_delete=models.DO_NOTHING)
     
 class Sensor(RestModel):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50)
     device = models.ForeignKey(Device)
     reference = models.CharField(max_length=50)
-    value_type = models.CharField(max_length=50)
-    unit = models.CharField(max_length=50)
-    values = models.CharField(max_length=50)
+    datatype = models.ForeignKey(DataType, on_delete=models.DO_NOTHING)
     last_value = models.CharField(max_length=50)
     last_received = models.CharField(max_length=50)
 
@@ -341,70 +385,3 @@ class WidgetInstanceCommand(models.Model):
     instance = models.ForeignKey(WidgetInstance)
     param = models.ForeignKey(WidgetCommandParameter, on_delete=models.DO_NOTHING)
     command = models.ForeignKey(Command, on_delete=models.DO_NOTHING)
-    
-class Person(RestModel):
-    id = models.IntegerField(primary_key=True)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
-    
-    list_path = "/account/person/list"
-    delete_path = "/account/person/del"
-    create_path = "/account/person/add"
-    update_path = "/account/person/update"
-    index = 'person'
-    
-    @staticmethod
-    def refresh():
-        _data = Person.get_list();
-        Person.objects.all().delete()
-        for record in _data:
-            r = Person(id=record.id, firstname=record.first_name, lastname=record.last_name)
-            r.save()
-    
-    def delete(self, *args, **kwargs):
-        Person.delete_details(self.id)
-        super(Person, self).delete(*args, **kwargs)
-    
-    @classmethod
-    def create(cls, firstname, lastname):
-        data = ['first_name', firstname, 'last_name', lastname]
-        record = cls.post_list(data)
-        r = Person(id=record.id, firstname=record.first_name, lastname=record.last_name)
-        r.save()
-        return r
-
-    @classmethod
-    def update(self, firstname, lastname):
-        data = ['id', self.id, 'first_name', firstname, 'last_name', lastname]
-        record = cls.put_detail(data)
-        self.firstname=firstname
-        self.lastname=lastname
-        self.save()
-        return self
-
-class User(RestModel):
-    id = models.IntegerField(primary_key=True)
-    login = models.CharField(max_length=50)
-    person = models.ForeignKey(Person)
-    is_admin = models.BooleanField(default=True)
-    
-    list_path = "/account/user/list"
-    add_path = "/account/user/add"
-    update_path = "/account/user/update"
-    delete_path = "/account/user/del"
-    password_path = "/account/user/password"
-    index = 'account'
-    
-    @staticmethod
-    def refresh():
-        Person.refresh()
-        _data = User.get_list();
-        User.objects.all().delete()
-        for record in _data:
-            p = Person.objects.get(id=record.person_id)
-            r = User(id=record.id, login=record.login, person=p, is_admin=(record.is_admin=='True'))
-            r.save()
-    
-    def delete(self, *args, **kwargs):
-        User.delete_details(self.id)
-        super(User, self).delete(*args, **kwargs)

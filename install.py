@@ -298,7 +298,8 @@ def install_dependencies():
                           'Distutils2',
                           'CherryPy >= 3.2.2',
                           'south',
-                          'manifesto'])
+                          'manifesto',
+                          'requests'])
 
     pkg_resources.get_distribution('django').activate()
     

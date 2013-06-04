@@ -8,17 +8,28 @@
             name: 'Basic widget',
             description: 'Basic widget with border and name',
 	    screenshot: 'dmg_1x1_basicActuatorBinary.png',
-            type: 'actuator.binary',
-            height: 1,
+            type: 'command',
+	    supported : ["DT_Bool",
+		"DT_Switch",
+		"DT_Enable",
+		"DT_Binary",
+		"DT_Step",
+		"DT_UpDown",
+		"DT_OpenClose",
+		"DT_Start",
+		"DT_State"
+	    ],
+	    height: 1,
             width: 1,
             displayname: true,
 	    displayborder: true,
+	    usage: "light"
         },
 
         _init: function() {
             var self = this, o = this.options;
             this.element.addClass("icon32-usage-" + o.usage)
-                .addClass('clickable')
+            this.element.addClass('clickable')
                 .processing();
             this._status = $.getStatus();
             this.element.append(this._status);
@@ -26,7 +37,7 @@
                 .keypress(function (e) {if (e.which == 13 || e.which == 32) {self.action; e.stopPropagation();}});                    
 
             this.param = o.params[0];
-            this.texts = [o.usage_parameters.state0, o.usage_parameters.state1];
+/*            this.texts = [o.usage_parameters.state0, o.usage_parameters.state1];*/
             this.setValue(o.initial_value);
         },
 
@@ -52,7 +63,7 @@
                 this.processingValue = 1;
             }
    	    data = {};
-	    data[this.param.key] = this.param.values[this.processingValue];
+	    data[this.param.key] = this.processingValue;
             rinor.put(['api', 'command', o.featureid], data)
                 .done(function(data, status, xhr){
                     self.valid(o.featureconfirmation);
@@ -86,15 +97,7 @@
         },
         
         setValue: function(value) {
-            if (value != null) {
-                if (value == 1 || (typeof(value) == 'string' && value.toLowerCase() == this.param.values[1].toLowerCase())) {
-                    this.currentValue = 1;
-                } else if (value == 0 || (typeof(value) == 'string' && value.toLowerCase() == this.param.values[0].toLowerCase())) {
-                    this.currentValue = 0;
-                }                
-            } else { // Unknown
-                this.currentValue = null;
-            }
+	    this.currentValue = value;
             this.processingValue = null;
             this.displayValue(this.currentValue);
         },
@@ -103,11 +106,11 @@
             var self = this, o = this.options;
             if (value != null) {
                 if (value == 1) {
-                    this.element.displayIcon('value_1');             
+                    this.element.displayIcon('value_true');             
                 } else {
-                    this.element.displayIcon('value_0');             
+                    this.element.displayIcon('value_false');             
                 }
-                this._status.writeStatus(this.texts[value]);
+                this._status.writeStatus(this.param.dataparameters['labels'][value]);
             } else { // Unknown
                 this.element.displayIcon('unknown');                             
                 this._status.writeStatus('---');

@@ -43,6 +43,7 @@ $(function(){
                  //alert(test);
                  test=test.replace(/[\\]{1}[n]{1}([a-zA-Z0-9]+[_a-zA-Z0-9\-]*)[=]/g,'" , "$1" : "');
                  //alert(test);
+                 test=test.replace(/"{"/g,'"","');                
                  //var lines=eval('(' + test + ')');
                  var lines=new Array();
                  var parsed = JSON.parse(test, function(key, value) {
