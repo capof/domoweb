@@ -65,30 +65,31 @@
     <main role='main'>        
         <form action="{% url "page_elements_view" page.id %}" id="pageForm" method="post">
             <input type='hidden' id='widgetsplacement' name='widgetsplacement' value='' />
-            <div id='matrixbackground'>
-                <section id='widgetsconfig'>
-                    {% for instance in widgetinstances %}
-                        <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
-                            <h2>Widget {{ instance.widget_id }} parameters</h2>
-                            <p><button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button></p>
-                            <div class='widget_parameters'>
-                                {% include 'widget_parameters.html' %}
-                            </div>
+            <section id='widgetsconfig'>
+                {% for instance in widgetinstances %}
+                    <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
+                        <h2>Widget {{ instance.widget_id }} parameters</h2>
+                        <div class='widget_parameters'>
+                            {% include 'widget_parameters.html' %}
                         </div>
-                    {% endfor %}
-                </section>
-                <div id='widgetsmatrix' role="list">
-                    {% for instance in widgetinstances %}
-                        <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">{{ instance.widget_id }}<button>Configure</button></div>
-                    {% endfor %}
-                </div>
-            </div>
+                    </div>
+                {% endfor %}
+            </section>
         </form>
+        <div id='widgetsmatrix' role="list">
+            {% for instance in widgetinstances %}
+                <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">
+                    {{ instance.widget_id }}
+                    <button class='conf_widget' data-instanceid="{{ instance.id }}">{% trans "Configure" %}</button>
+                    <button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button>
+                </div>
+            {% endfor %}
+        </div>
         <div id="widgetslist" class="modal">
             <h2>Choose a Widget</h2>
             <ul>
             {% for widget in widgets %}
-                <li><button class='add_widget' data-widgetid='{{ widget.id }}'>{{ widget.name }}</button></li>
+                <li><button class='add_widget' data-widgetid='{{ widget.id }}' data-width='{{ widget.width }}' data-height='{{ widget.height }}'>{{ widget.name }}</button></li>
             {% endfor %}
             </ul>
         </div>

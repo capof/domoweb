@@ -23,14 +23,14 @@ $(function() {
 		$("#pageForm").submit();
     });
 
-    $("body").on("click", ".del_widget", function() {
+    $("body").on("click", ".widgetinstance .del_widget", function() {
 		var id = $(this).data("instanceid");
-		$("#widgetinstance_" + id).remove();
+		gridster.remove_widget($("#widgetinstance_" + id));
 		$("#configinstance_" + id).remove();
 		$.modal.close();
     });
 
-    $("#widgetsmatrix").on("click", ".widgetinstance button", function() {
+    $("#widgetsmatrix").on("click", ".widgetinstance .conf_widget", function() {
 		var id = $(this).data("instanceid");
 		$("#configinstance_" + id).modal();
 		return false;
@@ -38,16 +38,20 @@ $(function() {
     
     $("#widgetslist").on("click", ".add_widget", function () {
         var widgetid = $(this).data("widgetid");
+        var width = $(this).data("width");
+        var height = $(this).data("height");
 
         var randomnumber=Math.floor(Math.random()*10001)
         var id = 'n' + randomnumber;
 		gridster.add_widget("<div id='widgetinstance_" + id + "' class='widgetinstance gs_w'"
 							+ "data-instanceid='" + id + "' data-widgetid='" + widgetid + "'>"
-							+ widgetid + "<button>Configure</button></div>", 1, 1);
+							+ widgetid
+							+ "<button class='conf_widget' data-instanceid=" + id + ">" + gettext('Configure') + "</button>"
+							+ "<button class='del_widget' data-instanceid=" + id + ">" + gettext('Remove') + "</button>"
+							, width, height);
 		
         $('#configpanel').append("<div id='configinstance_" + id + "' style='display: none'> \
             <h2>Widget " + id + " parameters</h2> \
-            <p><a href='#' class='remove_widget' data-instanceid='" + id + "' role='button'>Remove</a><p> \
             <div class='content'></div> \
             </div>");
 
