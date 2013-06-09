@@ -7,7 +7,7 @@
             {% for device in devices %}
                 <optgroup label="{{ device.name }}">
                 {% for sensor in device.sensor_set.all %}
-                    {% if sensor.value_type in param.types_as_list %}
+                    {% if sensor.datatype in param.types_as_list %}
                     <option>{{ sensor.name }}</option>
                     {% endif %}
                 {% endfor %}
