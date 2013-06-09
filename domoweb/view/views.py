@@ -33,6 +33,8 @@ Implements
 @license: GPL(v3)
 @organization: Domogik
 """
+
+import simplejson as json
 from django.utils.http import urlquote
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -145,20 +147,24 @@ def page_elements(request, id):
     iconsets = PageIcon.objects.values('iconset_id', 'iconset_name').distinct()
 
     if request.method == 'POST': # If the form has been submitted...
-        instances = getDictArray(request.POST, 'instance')
+        instances = json.loads(request.POST['widgetsplacement'])
+#        instances = getDictArray(request.POST, 'instance')
         keys = []
-        for key in instances.keys():
+        for instance in instances:
             try:
-                keys.append(int(key)) # Convert to int and remove new instances
+                keys.append(int(instance['instanceid'])) # Convert to int and remove new instances
             except ValueError:
                 pass
         widgetinstances = WidgetInstance.objects.filter(page_id=id).exclude(id__in=keys).delete()
-        for instanceid, instance in instances.items():
+        for instance in instances:
+            print instance
             if 'widgetid' in instance:
-                w = WidgetInstance(page=page, widget_id=instance['widgetid'])
-                w.save()
+                w = WidgetInstance(page=page, widget_id=instance['widgetid'], row=instance['row'], col=instance['col'])
             else:
-                w = WidgetInstance.objects.get(id=instanceid)
+                w = WidgetInstance.objects.get(id=instance['instanceid'])
+                w.row=instance['row']
+                w.col=instance['col']
+            w.save()
         return redirect('page_view', id=id) # Redirect after POST
 
     widgets = Widget.objects.all()

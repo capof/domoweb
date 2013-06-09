@@ -12,6 +12,12 @@ $(function(){
     
     $(window).bind('beforeunload', function () {  es.close(); });
 */
+    
+    $("#widgetsmatrix").gridster({
+		widget_selector: ".widgetinstance",
+		widget_margins: [10, 10],
+		widget_base_dimensions: [140, 140]
+	}).data('gridster').disable();
 });
 
 (function($) {    
@@ -27,6 +33,7 @@ $(function(){
             return JSON.parse(str);
         }
     });
+    
 })(jQuery);
 
 function unique(a) {

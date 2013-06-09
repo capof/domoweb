@@ -41,6 +41,7 @@
 {% endblock %}
 
 {% block css %}
+    <link href="{{ static_design_url }}/libraries/gridster/jquery.gridster.min.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/common/css/ui-buttons.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/common/css/ui-dialog.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/view/css/view-page.css" rel="stylesheet" type="text/css" />
@@ -66,7 +67,8 @@
 {% block js_include %}
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.ui.subclass/jquery.ui.subclass.js"></script>
-    <script type="text/javascript" src="{{ static_design_url }}/libraries/kinetic-v4.1.2/kinetic-v4.1.2.min.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/kinetic-v4.5.3/kinetic-v4.5.3.min.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/gridster/jquery.gridster.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.rinor.js"></script>
  
     <script type="text/javascript" src="{{ static_design_url }}/view/js/view-page.js"></script>
@@ -109,10 +111,10 @@
         {% endif %}
     </header>
     <main role='main'>
-        <div id='widgetsmatrix' role='list'>
+        <div id='widgetsmatrix' role="list">
             {% for instance in widgetinstances %}
-                <div id='widgetinstance_{{ instance.id }}' role='listitem'>
-                    {{ instance.widget }}
+                <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">
+                    {{ instance.widget_id }}
                     {% ssi instance.widget.template parsed %}
                 </div>
             {% endfor %}

@@ -27,6 +27,7 @@
     <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.ui.subclass/jquery.ui.subclass.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/common/js/dmg.rinor.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/simplemodal-basic-1.4.4/js/jquery.simplemodal.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/gridster/jquery.gridster.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/view/js/elements-page.js"></script>
 {% endblock %}
 
@@ -39,6 +40,7 @@
     <link href="{{ static_design_url }}/common/css/ui-buttons.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/view/css/elements-page.css" rel="stylesheet" type="text/css" />
     <link href="{{ static_design_url }}/libraries/simplemodal-basic-1.4.4/css/basic.css" rel="stylesheet" type="text/css" />
+    <link href="{{ static_design_url }}/libraries/gridster/jquery.gridster.min.css" rel="stylesheet" type="text/css" />
 
     {% for iconset in iconsets %}
     <link href="{{ static_iconsets_url }}/page/{{ iconset.iconset_id }}/icons.css" rel="stylesheet" type="text/css" />    
@@ -62,6 +64,7 @@
     </header>
     <main role='main'>        
         <form action="{% url "page_elements_view" page.id %}" id="pageForm" method="post">
+            <input type='hidden' id='widgetsplacement' name='widgetsplacement' value='' />
             <div id='matrixbackground'>
                 <section id='widgetsconfig'>
                     {% for instance in widgetinstances %}
@@ -76,10 +79,7 @@
                 </section>
                 <div id='widgetsmatrix' role="list">
                     {% for instance in widgetinstances %}
-                        <button id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}'>
-                            {{ instance.widget_id }}
-                            <input type='hidden' name='instance[{{ instance.id }}][instance]' value='{{ instance.id }}' />
-                        </button>
+                        <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">{{ instance.widget_id }}<button>Configure</button></div>
                     {% endfor %}
                 </div>
             </div>

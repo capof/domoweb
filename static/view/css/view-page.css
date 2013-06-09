@@ -216,3 +216,10 @@ form#loginform .close {
     top: -18px;
     width: 36px;
 }
+
+.widgetinstance {
+    display: block;
+    position: absolute;
+    border: dashed 1px #000000;
+    background: none repeat scroll 0 0 #FFFFFF;
+}

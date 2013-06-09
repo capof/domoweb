@@ -366,7 +366,8 @@ class Sensor(RestModel):
 class WidgetInstance(models.Model):
     id = models.AutoField(primary_key=True)
     page = models.ForeignKey(Page)
-    order = models.IntegerField()
+    row = models.IntegerField(default=0)
+    col = models.IntegerField(default=0)
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
 
     @classmethod

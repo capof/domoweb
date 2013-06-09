@@ -1,24 +1,39 @@
 $(function() {
+	var gridster = $("#widgetsmatrix").gridster({
+		widget_selector: ".widgetinstance",
+		widget_margins: [10, 10],
+		widget_base_dimensions: [140, 140],
+		serialize_params: function($w, wgd) {
+			param = { col: wgd.col, row: wgd.row, instanceid: $w.data('instanceid') }
+			if ($w.data('widgetid')) {
+				param['widgetid'] = $w.data('widgetid');
+			}
+			return param;
+		}
+	}).data('gridster');
+
     $('#show_widgets').click(function (e) {
-	$('#widgetslist').modal();
-	return false;
+		$('#widgetslist').modal();
+		return false;
     });
     
     $("a#save").click(function() {
-	$("#pageForm").submit();
+		placement = gridster.serialize();
+		$("#pageForm #widgetsplacement").val(JSON.stringify(placement));
+		$("#pageForm").submit();
     });
 
     $("body").on("click", ".del_widget", function() {
-	var id = $(this).data("instanceid");
-	$("#widgetinstance_" + id).remove();
-	$("#configinstance_" + id).remove();
-	$.modal.close();
+		var id = $(this).data("instanceid");
+		$("#widgetinstance_" + id).remove();
+		$("#configinstance_" + id).remove();
+		$.modal.close();
     });
 
-    $("#widgetsmatrix").on("click", ".widgetinstance", function() {
-	var id = $(this).data("instanceid");
-	$("#configinstance_" + id).modal();
-	return false;
+    $("#widgetsmatrix").on("click", ".widgetinstance button", function() {
+		var id = $(this).data("instanceid");
+		$("#configinstance_" + id).modal();
+		return false;
     });
     
     $("#widgetslist").on("click", ".add_widget", function () {
@@ -26,10 +41,10 @@ $(function() {
 
         var randomnumber=Math.floor(Math.random()*10001)
         var id = 'n' + randomnumber;
-        $('#widgetsmatrix').append("<button id='widgetinstance_" + id + "' class='widgetinstance' data-instanceid='" + id + "'>" + widgetid + " \
-                <input type='hidden' name='instance[" + id + "][widgetid]' value='" + widgetid + "' /> \
-                </button>");
-    
+		gridster.add_widget("<div id='widgetinstance_" + id + "' class='widgetinstance gs_w'"
+							+ "data-instanceid='" + id + "' data-widgetid='" + widgetid + "'>"
+							+ widgetid + "<button>Configure</button></div>", 1, 1);
+		
         $('#configpanel').append("<div id='configinstance_" + id + "' style='display: none'> \
             <h2>Widget " + id + " parameters</h2> \
             <p><a href='#' class='remove_widget' data-instanceid='" + id + "' role='button'>Remove</a><p> \
@@ -40,7 +55,3 @@ $(function() {
         $.modal.close();
     });
 });
-
-(function($) {    
-
-})(jQuery);
