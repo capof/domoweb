@@ -290,8 +290,8 @@ def install_dependencies():
     from setuptools.command import easy_install
     import pkg_resources
     easy_install.main( ['setuptools',
-                          'django == 1.4.5',
-                          'django-tastypie == 0.9.11',
+                          'django == 1.5.1',
+                          'django-tastypie == 0.9.15',
                           'django-tables2',
                           'simplejson >= 1.9.2',
                           'httplib2 >= 0.6.0',

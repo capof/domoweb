@@ -46,7 +46,7 @@ from django.conf import settings
 from django import forms
 from django.forms.widgets import Select
 from domoweb.restModel import RestModel
-from domoweb.models import Parameter, DeviceType, DeviceUsage, Device
+from domoweb.models import Parameter, DeviceType, Device
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.signals import rinor_changed

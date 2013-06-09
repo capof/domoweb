@@ -76,7 +76,7 @@
         <p>When you click on Finish, Domoweb will load data from RINOR, this may take few seconds.</p>
     </div>
     <ul class='wizard_nav'>
-        <li><a href='{% url config_configserver_view %}' class='button previous'>{% trans "Previous" %}</a></li>
-        <li><a href='{% url config_loadrinordata_view %}' class='button next'>{% trans "Finish" %}</a></li>
+        <li><a href='{% url "config_configserver_view" %}' class='button previous'>{% trans "Previous" %}</a></li>
+        <li><a href='{% url "config_loadrinordata_view" %}' class='button next'>{% trans "Finish" %}</a></li>
     </ul>
 {% endblock %}

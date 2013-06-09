@@ -43,8 +43,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
-from domoweb.models import Widget, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, Device, Sensor, Command
-from domoweb.models import Widget, WidgetParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, DeviceUsage, Device, Sensor, Command
+from domoweb.models import Widget, WidgetParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, Device, Sensor, Command
 from domoweb import fields
 from domoweb.forms import ParametersForm
     

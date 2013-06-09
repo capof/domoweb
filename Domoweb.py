@@ -17,7 +17,6 @@ import domoweb
 from eventsPlugin import EventsPlugin
 from corePlugin import CorePlugin
 from loaderPlugin import LoaderPlugin
-from rinorPlugin import RinorPlugin
 
 def main():
     """Main function that is called at the startup of Domoweb"""
@@ -107,7 +106,6 @@ def main():
 
     # Loading django config for database connection
     load_config(project)
-    RinorPlugin(engine, project).subscribe()
     LoaderPlugin(engine, project).subscribe()
 
 #    MQPlugin(engine).subscribe()

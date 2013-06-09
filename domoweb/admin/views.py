@@ -54,8 +54,7 @@ from django.forms.widgets import Select
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
-from domoweb.models import Parameter, Widget, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
-from domoweb.models import Parameter, Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DeviceType, DeviceUsage, Device, Command, CommandParam, Sensor
+from domoweb.models import Parameter, Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
 
 def login(request):
     """
