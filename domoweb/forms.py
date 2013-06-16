@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json
+import itertools
 from django.utils.translation import ugettext as _
 from itertools import groupby
 from django import forms
@@ -7,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import *
 from collections import OrderedDict
 from domoweb import fields
-from domoweb.models import PageIcon, PageTheme, WidgetOption, WidgetInstanceOption, WidgetSensor, WidgetInstanceSensor, Sensor
+from domoweb.models import PageIcon, PageTheme, WidgetOption, WidgetInstanceOption, WidgetSensor, WidgetInstanceSensor, Sensor, WidgetCommand, WidgetInstanceCommand, Command, WidgetDevice, WidgetInstanceDevice, Device
    
 # Page configuration form
 class PageForm(forms.Form):
@@ -112,7 +113,7 @@ class ParametersForm(forms.Form):
         self.fields[key] = forms.BooleanField(label=label, required=False, initial=default, help_text=help_text)
 
     def addGroupedModelChoiceField(self, key, label, queryset, group_by_field, empty_label, required, default=None, help_text=None):
-        self.fields[key] = GroupedModelChoiceField(label=label, required=required, queryset=queryset, group_by_field='device', empty_label=empty_label, initial=default, help_text=help_text)
+        self.fields[key] = GroupedModelChoiceField(label=label, required=required, queryset=queryset, group_by_field=group_by_field, empty_label=empty_label, initial=default, help_text=help_text)
 
     def addChoiceField(self, key, label, required, default=None, help_text=None, options=None, empty_label=None):
         choices = [('', '--Select Parameter--')]
@@ -274,7 +275,7 @@ class WidgetSensorsForm(ParametersForm):
         self.to_update = {}
         self.to_create = {}
 
-    def addField(self, parameter, devices, wis=None, tmpid=None):
+    def addField(self, parameter, wis=None, tmpid=None):
         if wis is None :
             key = ('sensorparam_%s_%s' % (tmpid, parameter.id))
             default = None
@@ -297,14 +298,85 @@ class WidgetSensorsForm(ParametersForm):
                 wis.save()
         except KeyError: #Did not pass validation
             pass
-    
+
+class WidgetCommandsForm(ParametersForm):
+    def __init__(self, *args, **kwargs):
+        # This should be done before any references to self.fields
+        super(WidgetCommandsForm, self).__init__(*args, **kwargs)
+        self.to_update = {}
+        self.to_create = {}
+
+    def addField(self, parameter, wic=None, tmpid=None):
+        if wic is None :
+            key = ('commandparam_%s_%s' % (tmpid, parameter.id))
+            default = None
+            self.to_create[key] = parameter
+        else:
+            key = ('commandparam_%s' % (wic.id))
+            default = wic.command
+            self.to_update[key] = wic
+
+        datatypes = []
+        types = json.loads(parameter.types)
+        for type in types:
+            for p in itertools.permutations(type):            
+                datatypes.append(''.join(p))
+        commands = Command.objects.filter(datatypes__in = datatypes)
+        self.addGroupedModelChoiceField(key=key, label=parameter.name, required=parameter.required, default=default, queryset=commands, group_by_field='device', empty_label=_("--Select Command--"), help_text=parameter.description)
+
+    def save(self, instance):
+        try:
+            for field, parameter in self.to_create.iteritems():
+                wic = WidgetInstanceCommand(instance=instance, parameter=parameter, command=self.cleaned_data[field])
+                wic.save()
+            for field, wic in self.to_update.iteritems():
+                wic.command=self.cleaned_data[field]
+                wic.save()
+        except KeyError: #Did not pass validation
+            pass
+
+class WidgetDevicesForm(ParametersForm):
+    def __init__(self, *args, **kwargs):
+        # This should be done before any references to self.fields
+        super(WidgetDevicesForm, self).__init__(*args, **kwargs)
+        self.to_update = {}
+        self.to_create = {}
+
+    def addField(self, parameter, wid=None, tmpid=None):
+        if wid is None :
+            key = ('deviceparam_%s_%s' % (tmpid, parameter.id))
+            default = None
+            self.to_create[key] = parameter
+        else:
+            key = ('deviceparam_%s' % (wid.id))
+            default = wid.device
+            self.to_update[key] = wid
+
+        devices = Device.objects.filter(type__in = parameter.types_as_list)
+        self.addGroupedModelChoiceField(key=key, label=parameter.name, required=parameter.required, default=default, queryset=devices, group_by_field='type', empty_label=_("--Select Device--"), help_text=parameter.description)
+
+    def save(self, instance):
+        try:
+            for field, parameter in self.to_create.iteritems():
+                wid = WidgetInstanceDevice(instance=instance, parameter=parameter, device=self.cleaned_data[field])
+                wid.save()
+            for field, wid in self.to_update.iteritems():
+                wid.device=self.cleaned_data[field]
+                wid.save()
+        except KeyError: #Did not pass validation
+            pass
+        
 class WidgetInstanceForms(object):
-    def __init__(self, devices, widget, instance=None, tmpid=None):
+    def __init__(self, widget, instance=None, tmpid=None):
         self.optionsform = WidgetOptionsForm()
         self.sensorsform = WidgetSensorsForm()
+        self.commandsform = WidgetCommandsForm()
+        self.devicesform = WidgetDevicesForm()
         widgetoptions = WidgetOption.objects.filter(widget=widget)
         widgetsensors = WidgetSensor.objects.filter(widget=widget)    
-        
+        widgetcommands = WidgetCommand.objects.filter(widget=widget)    
+        widgetdevices = WidgetDevice.objects.filter(widget=widget)    
+
         if instance:
             for parameter in widgetoptions:
                 try:
@@ -317,22 +389,45 @@ class WidgetInstanceForms(object):
                 try:
                     wis = WidgetInstanceSensor.objects.get(instance=instance, parameter=parameter)
                 except ObjectDoesNotExist:
-                    self.sensorsform.addField(parameter=parameter, tmpid=instance.id, devices=devices)
+                    self.sensorsform.addField(parameter=parameter, tmpid=instance.id)
                 else:
-                    self.sensorsform.addField(parameter=parameter, devices=devices, wis=wis)
+                    self.sensorsform.addField(parameter=parameter, wis=wis)
+            for parameter in widgetcommands:
+                try:
+                    wic = WidgetInstanceCommand.objects.get(instance=instance, parameter=parameter)
+                except ObjectDoesNotExist:
+                    self.commandsform.addField(parameter=parameter, tmpid=instance.id)
+                else:
+                    self.commandsform.addField(parameter=parameter, wic=wic)
+            for parameter in widgetdevices:
+                try:
+                    wid = WidgetInstanceDevice.objects.get(instance=instance, parameter=parameter)
+                except ObjectDoesNotExist:
+                    self.devicesform.addField(parameter=parameter, tmpid=instance.id)
+                else:
+                    self.devicesform.addField(parameter=parameter, wid=wid)
+            
         else:
             for parameter in widgetoptions:
                 self.optionsform.addField(parameter=parameter, tmpid=tmpid)
             for parameter in widgetsensors:
-                self.sensorsform.addField(parameter=parameter, devices=devices, tmpid=tmpid)
+                self.sensorsform.addField(parameter=parameter, tmpid=tmpid)
+            for parameter in widgetcommands:
+                self.commandsform.addField(parameter=parameter, tmpid=tmpid)
+            for parameter in widgetdevices:
+                self.devicesform.addField(parameter=parameter, tmpid=tmpid)
 
     def setData(self, kwds):
         self.optionsform.setData(kwds)
         self.sensorsform.setData(kwds)
+        self.commandsform.setData(kwds)
+        self.devicesform.setData(kwds)
 
     def validate(self):
         self.optionsform.validate()
         self.sensorsform.validate()
+        self.commandsform.validate()
+        self.devicesform.validate()
         """
         print "options", self.optionsform.is_valid()
         for field, errors in self.optionsform.errors.items():
@@ -347,12 +442,14 @@ class WidgetInstanceForms(object):
         """
 
     def is_valid(self):
-        return self.optionsform.is_valid() and self.sensorsform.is_valid()
+        return self.optionsform.is_valid() and self.sensorsform.is_valid() and self.commandsform.is_valid() and self.devicesform.is_valid()
     
     def save(self, instance):    
         self.validate()
         self.optionsform.save(instance)
         self.sensorsform.save(instance)
+        self.commandsform.save(instance)
+        self.devicesform.save(instance)
 
         return self.is_valid()
  

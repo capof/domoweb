@@ -115,8 +115,8 @@
             },
             "sensors" : {
                 "primary" : {
-                    "name": "Main",
-                    "description": "Select the number sensor",
+                    "name": "Number",
+                    "description": "Number sensor",
                     "types" : ["DT_Number",
                         "DT_Scaling",
                         "DT_Angle",
@@ -152,7 +152,32 @@
                     ]
                 }
             },
-            "commands" : {},
+            "commands" : {
+                "switch" : {
+                    "name": "Switch",
+                    "description": "Select the switch command",
+                    "types" : [
+                        ["DT_Switch"]
+                    ]
+                },
+                "dimmer" : {
+                    "name": "Main",
+                    "description": "Select the dimmer command",
+                    "types" : [
+                        ["DT_Scaling"]
+                    ]
+                }
+            },
+            "devices" : {
+                "devicetest" : {
+                    "name": "Device test",
+                    "description": "Select the device",
+                    "types" : [
+                        "onewire.thermometer",
+                        "plcbus.switch"
+                    ]
+                }
+            },
             "css" : ["sensorNumber.css"],
             "js" : ["sensorNumber.js"]
         }

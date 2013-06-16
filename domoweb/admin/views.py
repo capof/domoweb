@@ -54,7 +54,7 @@ from django.forms.widgets import Select
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
-from domoweb.models import Parameter, Widget, WidgetOption, WidgetSensor, WidgetCommand, PageIcon, WidgetInstance, WidgetInstanceOption, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
+from domoweb.models import *
 
 def login(request):
     """
@@ -476,6 +476,10 @@ class WidgetCommandTable(tables.Table):
     class Meta:
         model = WidgetCommand
 
+class WidgetDeviceTable(tables.Table):
+    class Meta:
+        model = WidgetDevice
+
 class ParameterTable(tables.Table):
     class Meta:
         model = Parameter
@@ -499,6 +503,10 @@ class WidgetInstanceSensorTable(tables.Table):
 class WidgetInstanceCommandTable(tables.Table):
     class Meta:
         model = WidgetInstanceCommand
+
+class WidgetInstanceDeviceTable(tables.Table):
+    class Meta:
+        model = WidgetInstanceDevice
 
 class PageThemeTable(tables.Table):
     class Meta:
@@ -546,12 +554,14 @@ def admin_core_domowebdata(request):
     widgetparameter_table = WidgetOptionTable(WidgetOption.objects.all())
     widgetsensorparameter_table = WidgetSensorTable(WidgetSensor.objects.all())
     widgetcommandparameter_table = WidgetCommandTable(WidgetCommand.objects.all())
+    widgetdeviceparameter_table = WidgetDeviceTable(WidgetDevice.objects.all())
     parameter_table = ParameterTable(Parameter.objects.all())
     pageicon_table = PageIconTable(PageIcon.objects.all())
     widgetinstance_table = WidgetInstanceTable(WidgetInstance.objects.all())
     widgetinstanceparam_table = WidgetInstanceOptionTable(WidgetInstanceOption.objects.all())
     widgetinstancesensor_table = WidgetInstanceSensorTable(WidgetInstanceSensor.objects.all())
     widgetinstancecommand_table = WidgetInstanceCommandTable(WidgetInstanceCommand.objects.all())
+    widgetinstancedevice_table = WidgetInstanceDeviceTable(WidgetInstanceDevice.objects.all())
     pagetheme_table = PageThemeTable(PageTheme.objects.all())
     page_table = PageTable(Page.objects.all())
     device_table = DeviceTable(Device.objects.all())
@@ -571,11 +581,13 @@ def admin_core_domowebdata(request):
         widgetparameter_table = widgetparameter_table,
         widgetsensorparameter_table = widgetsensorparameter_table,
         widgetcommandparameter_table = widgetcommandparameter_table,
+        widgetdeviceparameter_table = widgetdeviceparameter_table,
         pageicon_table = pageicon_table,
         widgetinstance_table = widgetinstance_table,
         widgetinstanceparam_table = widgetinstanceparam_table,
         widgetinstancesensor_table = widgetinstancesensor_table,
         widgetinstancecommand_table = widgetinstancecommand_table,
+        widgetinstancedevice_table = widgetinstancedevice_table,
         pagetheme_table = pagetheme_table,
         page_table = page_table,
         device_table = device_table,

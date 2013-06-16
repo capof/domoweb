@@ -59,7 +59,7 @@ class LoaderTask(threading.Thread):
 		self.updateStatus('finished')
 
 	def loadWidgets(self):
-		from domoweb.models import Widget, WidgetOption, WidgetSensor, WidgetCommand, WidgetCSS, WidgetJS
+		from domoweb.models import Widget, WidgetOption, WidgetSensor, WidgetCommand, WidgetDevice, WidgetCSS, WidgetJS
 		from collections import OrderedDict
 		
 		root = self.project['packs']['widgets']['root']
@@ -115,7 +115,7 @@ class LoaderTask(threading.Thread):
 							# Sensors parameters
 							for pid, param in widget['sensors'].items():
 								id = "%s-%s" % (widget_id, pid)
-								p = WidgetSensor(id=id, widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=(', '.join(param['types'])))
+								p = WidgetSensor(id=id, widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=json.dumps(param['types']))
 								if 'filters' in param:
 									p.filters = ', '.join(param['filters'])
 								if 'required' in param:
@@ -123,12 +123,21 @@ class LoaderTask(threading.Thread):
 								else:
 									p.required = True
 								p.save()
-							# Command parameters
+							# Commands parameters
 							for pid, param in widget['commands'].items():
 								id = "%s-%s" % (widget_id, pid)
-								p = WidgetCommand(id=id, widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=(', '.join(param['types'])))
+								p = WidgetCommand(id=id, widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=json.dumps(param['types']))
 								if 'filters' in param:
 									p.filters = ', '.join(param['filters'])
+								if 'required' in param:
+									p.required = param['required']
+								else:
+									p.required = True
+								p.save()
+							# Devices parameters
+							for pid, param in widget['devices'].items():
+								id = "%s-%s" % (widget_id, pid)
+								p = WidgetDevice(id=id, widget_id=widget_id, key=pid, name=param['name'], description=param['description'], types=json.dumps(param['types']))
 								if 'required' in param:
 									p.required = param['required']
 								else:

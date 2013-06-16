@@ -124,8 +124,6 @@ def page_elements(request, id):
 
     iconsets = PageIcon.objects.values('iconset_id', 'iconset_name').distinct()
     
-    devices = Device.objects.all()
-        
     if request.method == 'POST': # If the form has been submitted...
         instances = json.loads(request.POST['widgetsplacement'])
         keys = []
@@ -141,13 +139,13 @@ def page_elements(request, id):
             if 'widgetid' in instance: # New instance
                 w = WidgetInstance(page=page, widget_id=instance['widgetid'], row=instance['row'], col=instance['col'])
                 w.save()
-                form = WidgetInstanceForms(devices, w.widget, tmpid=iid)
+                form = WidgetInstanceForms(w.widget, tmpid=iid)
             else: # Existing
                 w = WidgetInstance.objects.get(id=iid)
                 w.row=instance['row']
                 w.col=instance['col']
                 w.save()
-                form = WidgetInstanceForms(devices, w.widget, instance=w)
+                form = WidgetInstanceForms(w.widget, instance=w)
             form.setData(request.POST)
             w.configured = form.save(w)
             w.save()
@@ -155,7 +153,7 @@ def page_elements(request, id):
 
     widgetinstances = WidgetInstance.objects.filter(page_id = id)
     for instance in widgetinstances:
-        instance.forms = WidgetInstanceForms(devices, instance.widget, instance)
+        instance.forms = WidgetInstanceForms(instance.widget, instance)
 
     widgets = Widget.objects.all()
     
@@ -172,15 +170,14 @@ def page_elements(request, id):
 def page_elements_widgetparams(request, instanceid, widgetid):
     from django.template.loader import get_template
     widget = Widget.objects.get(id=widgetid)
-    devices = Device.objects.all()
     status=200
     try:
         instanceid = int(instanceid)
     except ValueError:
-        forms = WidgetInstanceForms(devices, widget=widget, tmpid=instanceid)
+        forms = WidgetInstanceForms(widget=widget, tmpid=instanceid)
     else:
         instance = WidgetInstance.objects.get(id=instanceid)
-        forms = WidgetInstanceForms(devices, widget=widget, instance=instance)
+        forms = WidgetInstanceForms(widget=widget, instance=instance)
 
     if request.method == 'POST': # If the form has been submitted...
         forms.setData(request.POST)

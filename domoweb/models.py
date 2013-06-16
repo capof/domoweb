@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.db.models import F
 from django.core.exceptions import PermissionDenied
@@ -7,7 +8,7 @@ from restModel import RestModel
 class Parameter(models.Model):
     key = models.CharField(max_length=30, primary_key=True)
     value = models.CharField(max_length=255)
-    
+
 class Widget(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     version = models.CharField(max_length=50, default="")
@@ -18,6 +19,9 @@ class Widget(models.Model):
     width = models.IntegerField(default=1)
     template = models.CharField(max_length=255, default="")
 
+    def __unicode__(self):
+        return self.id
+    
 class WidgetOption(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     widget = models.ForeignKey(Widget)
@@ -28,7 +32,10 @@ class WidgetOption(models.Model):
     default = models.CharField(max_length=50, blank=True)
     description = models.CharField(max_length=255)
     options = models.TextField(null=True, blank=True)
-                
+
+    def __unicode__(self):
+        return self.id
+
 class WidgetSensor(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     widget = models.ForeignKey(Widget)
@@ -39,8 +46,11 @@ class WidgetSensor(models.Model):
     filters = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
 
+    def __unicode__(self):
+        return self.id
+
     def types_as_list(self):
-        return self.types.split(', ')
+        return json.loads(self.types)
 
 class WidgetCommand(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
@@ -52,9 +62,27 @@ class WidgetCommand(models.Model):
     filters = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
 
-    def types_as_list(self):
-        return self.types.split(', ')
+    def __unicode__(self):
+        return self.id
 
+    def types_as_list(self):
+        return json.loads(self.types)
+
+class WidgetDevice(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    widget = models.ForeignKey(Widget)
+    key = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    required = models.BooleanField()
+    types = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.id
+
+    def types_as_list(self):
+        return json.loads(self.types)
+    
 class WidgetJS(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
@@ -135,6 +163,9 @@ class Page(models.Model):
     icon = models.ForeignKey(PageIcon, blank=True, null=True, on_delete=models.DO_NOTHING)
     theme = models.ForeignKey(PageTheme, blank=True, null=True, on_delete=models.DO_NOTHING)
 
+    def __unicode__(self):
+        return self.name
+
     _leafs = None
     _childrens = None
     _level = None
@@ -197,6 +228,9 @@ class DeviceType(RestModel):
     list_path = "/base/device_type/list"
     index = 'device_type'
 
+    def __unicode__(self):
+        return self.id
+    
     @staticmethod
     def refresh():
         _data = DeviceType.get_list();
@@ -212,6 +246,9 @@ class DataType(RestModel):
     list_path = "/base/datatype"
     index = "datatypes"
 
+    def __unicode__(self):
+        return self.id
+    
     @staticmethod
     def refresh():
         import json
@@ -228,6 +265,9 @@ class Device(RestModel):
     reference = models.CharField(max_length=255)
     type = models.ForeignKey(DeviceType, blank=True, null=True, on_delete=models.DO_NOTHING)
 
+    def __unicode__(self):
+        return self.name
+    
     list_path = "/base/device/list"
     delete_path = "/base/device/del"
     create_path = "/base/device/add"
@@ -272,6 +312,8 @@ class Device(RestModel):
                 for param in command.command_param:
                     p = CommandParam(command=c, key=param.key, datatype_id=param.data_type)
                     p.save()
+                    c.datatypes = c.datatypes.join(param.data_type)
+                c.save()
         if "sensor" in data:
             for sensor in data.sensor:
                 s = Sensor(id=sensor.id, name=sensor.name, device=device, reference=sensor.reference, datatype_id=sensor.data_type, last_value=sensor.last_value, last_received=sensor.last_received)
@@ -351,6 +393,10 @@ class Command(RestModel):
     device = models.ForeignKey(Device)
     reference = models.CharField(max_length=50)
     return_confirmation = models.BooleanField(default=True)
+    datatypes = models.CharField(max_length=50)
+    
+    def __unicode__(self):
+        return self.name
     
 class CommandParam(RestModel):
     id = models.AutoField(primary_key=True)
@@ -377,7 +423,10 @@ class WidgetInstance(models.Model):
     col = models.IntegerField(default=0)
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
     configured = models.BooleanField(default=False)
-    
+
+    def __unicode__(self):
+        return self.id
+
     @classmethod
     def get_page_list(cls, id):
         return cls.objects.filter(page__id=id).order_by('order')
@@ -399,3 +448,9 @@ class WidgetInstanceCommand(models.Model):
     instance = models.ForeignKey(WidgetInstance)
     parameter = models.ForeignKey(WidgetCommand, on_delete=models.DO_NOTHING)
     command = models.ForeignKey(Command, on_delete=models.DO_NOTHING)
+
+class WidgetInstanceDevice(models.Model):
+    id = models.AutoField(primary_key=True)
+    instance = models.ForeignKey(WidgetInstance)
+    parameter = models.ForeignKey(WidgetDevice, on_delete=models.DO_NOTHING)
+    device = models.ForeignKey(Device, on_delete=models.DO_NOTHING)
