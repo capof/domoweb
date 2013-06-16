@@ -9,7 +9,7 @@ $ ./manage.py schemamigration domoweb --auto "domoweb_0_4"
  + Added model domoweb.Sensor
  + Added model domoweb.CommandParam
  + Added model domoweb.DataType
- + Added model domoweb.WidgetInstanceParam
+ + Added model domoweb.WidgetInstanceOption
  - Deleted field feature_id on domoweb.WidgetInstance
 Created 0006_domoweb_0_4.py. You can now apply this migration with: ./manage.py migrate domoweb
 $ ./manage.py migrate domoweb

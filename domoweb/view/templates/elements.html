@@ -29,10 +29,12 @@
     <script type="text/javascript" src="{{ static_design_url }}/libraries/simplemodal-basic-1.4.4/js/jquery.simplemodal.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/libraries/gridster/jquery.gridster.min.js"></script>
     <script type="text/javascript" src="{{ static_design_url }}/view/js/elements-page.js"></script>
+    <script type="text/javascript" src="{{ static_design_url }}/libraries/jquery.maskinput-1.4/jquery.maskinput.min.js"></script>
 {% endblock %}
 
 {% block js_script %}
     $(function() {
+        $('input[type=text].mask').maskInput();
     });
 {% endblock %}
 
@@ -69,8 +71,11 @@
                 {% for instance in widgetinstances %}
                     <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
                         <h2>Widget {{ instance.widget_id }} parameters</h2>
+                        <a href='#' class='force_close' data-instanceid="{{ instance.id }}">Force close</a>
                         <div class='widget_parameters'>
-                            {% include 'widget_parameters.html' %}
+                            {% with forms=instance.forms %}
+                            {% include 'widget_parameters.html'%}
+                            {% endwith %}
                         </div>
                     </div>
                 {% endfor %}
@@ -78,9 +83,9 @@
         </form>
         <div id='widgetsmatrix' role="list">
             {% for instance in widgetinstances %}
-                <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">
+                <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance{% if not instance.configured %} not_configured{% endif %}' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">
                     {{ instance.widget_id }}
-                    <button class='conf_widget' data-instanceid="{{ instance.id }}">{% trans "Configure" %}</button>
+                    <button class='conf_widget' data-instanceid="{{ instance.id }}" data-widgetid='{{ instance.widget.id }}'>{% trans "Configure" %}</button>
                     <button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button>
                 </div>
             {% endfor %}

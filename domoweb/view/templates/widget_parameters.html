@@ -1,21 +1,53 @@
-{% with widget=instance.widget %}
+{% load i18n %}
 <h3>Sensors</h3>
-{% for param in widget.widgetsensorparameter_set.all %}
-    <div class='row'>
-        <label for=''>{{ param.name }}</label>
-        <select>
-            {% for device in devices %}
-                <optgroup label="{{ device.name }}">
-                {% for sensor in device.sensor_set.all %}
-                    {% if sensor.datatype in param.types_as_list %}
-                    <option>{{ sensor.name }}</option>
-                    {% endif %}
-                {% endfor %}
-                </optgroup>
-            {% endfor %}
-        </select>
-    </div>
+{{ forms.sensorsform.non_field_errors }}
+<table class='parameters' cellpadding='0' cellspacing='0'>
+    <thead class='offscreen'>
+        <tr>
+            <th scope='col'>Name</th>            
+            <th scope='col'>Sensor</th>            
+        </tr>
+    </thead>
+    <tbody>
+{% for field in forms.sensorsform %}
+    <tr class='{% cycle 'odd' 'even' %}'>
+        <td class='name'>
+            <label for="{{ field.auto_id }}" class="{% if field.field.required %}required{% endif %}">
+               {{ field.label }} {% if field.field.required %}<span class="offscreen"> {% trans "(required)" %}</span>{% endif %}</span>
+            </label>
+            <div class='description'>{{ field.help_text }}</div>
+            {% if field.errors %}<div class='errors'>{{ field.errors }}</div>{% endif %}
+        </td>
+        <td class='input'>
+            {{ field }}
+        </td>
+    </tr>
 {% endfor %}
-<h3>Commands</h3>
-<h3>Parameters</h3>
-{% endwith %}
+    </tbody>
+</table>
+<h3>Options</h3>
+{{ forms.optionsform.non_field_errors }}
+<table class='parameters' cellpadding='0' cellspacing='0'>
+    <thead class='offscreen'>
+        <tr>
+            <th scope='col'>Name</th>            
+            <th scope='col'>Sensor</th>            
+        </tr>
+    </thead>
+    <tbody>
+{% for field in forms.optionsform %}
+    <tr class='{% cycle 'odd' 'even' %}'>
+        <td class='name'>
+            <label for="{{ field.auto_id }}" class="{% if field.field.required %}required{% endif %}">
+               {{ field.label }} {% if field.field.required %}<span class="offscreen"> {% trans "(required)" %}</span>{% endif %}</span>
+            </label>
+            <div class='description'>{{ field.help_text }}</div>
+            {% if field.errors %}<div class='errors'>{{ field.errors }}</div>{% endif %}
+        </td>
+        <td class='input'>
+            {{ field }}
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>

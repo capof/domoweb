@@ -76,12 +76,12 @@ def __is_user_admin(request):
     return user is not None and user['is_admin']
 
 def ipFormatChk(ip_str):
-   pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
-   if re.match(pattern, ip_str):
-      return True
-   else:
-      return False
-    
+    pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+    if re.match(pattern, ip_str):
+        return True
+    else:
+        return False
+
 def convertToStr(data):
     if isinstance(data, dict):
         transformed_dict = dict()
@@ -98,20 +98,22 @@ def convertToStr(data):
     else:
         return data
 
-def getDictArray(post, name):
+def get_post_dict(post, name):
     dic = {}
+    import re
     for k in post.keys():
         if k.startswith(name):
             rest = k[len(name):]
-            
             # split the string into different components
             parts = [p[:-1] for p in rest.split('[')][1:]
             id = str(parts[0])
-            
-            # add a new dictionary if it doesn't exist yet
-            if id not in dic:
-                dic[id] = {}
-                
-            # add the information to the dictionary
-            dic[id][parts[1]] = post.get(k)
+            if (len(parts) == 2):
+                # add a new dictionary if it doesn't exist yet
+                if id not in dic:
+                    dic[id] = {}
+                    
+                # add the information to the dictionary
+                dic[id][parts[1]] = post.get(k)
+            else:
+                dic[id] = post.get(k)
     return dic

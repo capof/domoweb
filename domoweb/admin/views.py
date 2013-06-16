@@ -54,7 +54,7 @@ from django.forms.widgets import Select
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
 from domoweb.exceptions import RinorError, RinorNotConfigured
-from domoweb.models import Parameter, Widget, WidgetParameter, WidgetSensorParameter, WidgetCommandParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
+from domoweb.models import Parameter, Widget, WidgetOption, WidgetSensor, WidgetCommand, PageIcon, WidgetInstance, WidgetInstanceOption, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, Page, DataType, DeviceType, Device, Command, CommandParam, Sensor
 
 def login(request):
     """
@@ -464,17 +464,17 @@ class WidgetTable(tables.Table):
     class Meta:
         model = Widget
 
-class WidgetParameterTable(tables.Table):
+class WidgetOptionTable(tables.Table):
     class Meta:
-        model = WidgetParameter
+        model = WidgetOption
 
-class WidgetSensorParameterTable(tables.Table):
+class WidgetSensorTable(tables.Table):
     class Meta:
-        model = WidgetSensorParameter
+        model = WidgetSensor
 
-class WidgetCommandParameterTable(tables.Table):
+class WidgetCommandTable(tables.Table):
     class Meta:
-        model = WidgetCommandParameter
+        model = WidgetCommand
 
 class ParameterTable(tables.Table):
     class Meta:
@@ -488,9 +488,9 @@ class WidgetInstanceTable(tables.Table):
     class Meta:
         model = WidgetInstance
 
-class WidgetInstanceParamTable(tables.Table):
+class WidgetInstanceOptionTable(tables.Table):
     class Meta:
-        model = WidgetInstanceParam
+        model = WidgetInstanceOption
 
 class WidgetInstanceSensorTable(tables.Table):
     class Meta:
@@ -543,13 +543,13 @@ def admin_core_domowebdata(request):
     page_title = _("Domoweb Data")
     
     widget_table = WidgetTable(Widget.objects.all())
-    widgetparameter_table = WidgetParameterTable(WidgetParameter.objects.all())
-    widgetsensorparameter_table = WidgetSensorParameterTable(WidgetSensorParameter.objects.all())
-    widgetcommandparameter_table = WidgetCommandParameterTable(WidgetCommandParameter.objects.all())
+    widgetparameter_table = WidgetOptionTable(WidgetOption.objects.all())
+    widgetsensorparameter_table = WidgetSensorTable(WidgetSensor.objects.all())
+    widgetcommandparameter_table = WidgetCommandTable(WidgetCommand.objects.all())
     parameter_table = ParameterTable(Parameter.objects.all())
     pageicon_table = PageIconTable(PageIcon.objects.all())
     widgetinstance_table = WidgetInstanceTable(WidgetInstance.objects.all())
-    widgetinstanceparam_table = WidgetInstanceParamTable(WidgetInstanceParam.objects.all())
+    widgetinstanceparam_table = WidgetInstanceOptionTable(WidgetInstanceOption.objects.all())
     widgetinstancesensor_table = WidgetInstanceSensorTable(WidgetInstanceSensor.objects.all())
     widgetinstancecommand_table = WidgetInstanceCommandTable(WidgetInstanceCommand.objects.all())
     pagetheme_table = PageThemeTable(PageTheme.objects.all())

@@ -10,9 +10,84 @@ html, body {
 .modal {display:none;}
 
 .widgetinstance {
+    color: #e8e8e8;
     display: block;
     position: absolute;
-    border: dashed 1px #000000;
-    background: none repeat scroll 0 0 #FFFFFF;
+    border-bottom: solid 3px #00981c;
+    background: none repeat scroll 0 0 #3C3C3C;
     cursor: pointer;
+    padding: 1em;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+}
+
+.widgetinstance.not_configured {
+    border-bottom: solid 3px #980000;    
+}
+
+.force_close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1em;
+    display: none;
+}
+
+table.parameters {
+    width: 100%;
+}
+
+table.parameters td.name {
+    width: 20em;
+}
+
+table.parameters td.input {
+    text-align: center;
+}
+
+table.parameters td {
+    padding: 0.2em 1em 0.2em 1em;
+    border-bottom: 1px solid #67a8d2;
+}
+
+table.parameters th {
+    padding: 0.2em;
+    border-bottom: 1px solid #67a8d2;
+}
+
+table.parameters label {
+    display: block;
+    float: right;
+    font-weight: bold;
+}
+
+table.parameters label.required {
+}
+
+table.parameters label.required:after { content:" *"; }
+
+table.parameters .odd td {
+    background-color: #f6f0f6;
+    color: #404040;
+}
+
+table.parameters .even td {
+    background-color: #cac4c9;
+    color: #404040;
+}
+
+table.parameters .description {
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+table.parameters .errors {
+    color: #a50003;
+    font-size: 0.8em;
+    text-align: center;
+    width: 100%;
+}
+
+table.parameters select, table.parameters input, table.parameters textarea {
+    min-width: 20em;
 }

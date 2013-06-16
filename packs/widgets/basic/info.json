@@ -14,12 +14,103 @@
             "name" : "Sensor Number",
             "height" : 1,
             "width" : 1,
-            "parameters" : {
-                "border" : {
-                    "name": "Border",
-                    "description": "Set this to get a border around the widget",
+            "options" : {
+                "bool" : {
+                    "name": "Boolean",
+                    "description": "Boolean test",
                     "type": "boolean",
                     "default": "True"
+                },
+                "string_1" : {
+                    "name": "String 1",
+                    "description": "String test with minlength=5, maxlength=10",
+                    "type": "string",
+                    "default": "Default value",
+                    "min_length": 5,
+                    "max_length": 10,
+                    "required": false
+                },
+                "string_2" : {
+                    "name": "String 2",
+                    "description": "String test with mask",
+                    "type": "string",
+                    "default": "Default value",
+                    "mask": "(999) AAA-***",
+                    "required": false
+                },
+                "string_3" : {
+                    "name": "String 3",
+                    "description": "Multilignes String test",
+                    "type": "string",
+                    "default": "Default value",
+                    "multilignes": true,
+                    "required": false
+                },
+                "choice" : {
+                    "name": "Choice",
+                    "description": "Choice test",
+                    "type": "choice",
+                    "choices" : {"a":"A", "b":"B", "c":"C"},
+                    "required": false
+                },
+                "multiplechoice" : {
+                    "name": "Multiple Choice",
+                    "description": "Multiple Choice test",
+                    "type": "multiplechoice",
+                    "choices" : {"a":"A", "b":"B", "c":"C"},
+                    "required": false
+                },
+                "date" : {
+                    "name": "Date",
+                    "description": "Date test",
+                    "type": "date",
+                    "required": false
+                },
+                "time" : {
+                    "name": "Time",
+                    "description": "Time test",
+                    "type": "time",
+                    "required": false
+                },
+                "datetime" : {
+                    "name": "DateTime",
+                    "description": "DateTime test",
+                    "type": "datetime",
+                    "required": false
+                },
+                "float" : {
+                    "name": "Float",
+                    "description": "Float test with min=5, max=10",
+                    "type": "float",
+                    "min_value": 5,
+                    "max_value": 10,
+                    "required": false
+                },
+                "integer" : {
+                    "name": "Integer",
+                    "description": "Integer test with min=5, max=10",
+                    "type": "integer",
+                    "min_value": 5,
+                    "max_value": 10,
+                    "required": false
+                },
+                "email" : {
+                    "name": "Email",
+                    "description": "Email test",
+                    "type": "email",
+                    "required": false
+                },
+                "ipv4" : {
+                    "name": "IPv4",
+                    "description": "IPv4 test",
+                    "type": "ipv4",
+                    "required": false
+                },
+                "url" : {
+                    "name": "Url",
+                    "description": "Url test",
+                    "type": "url",
+                    "required": false
                 }
             },
             "sensors" : {

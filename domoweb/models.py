@@ -14,12 +14,12 @@ class Widget(models.Model):
     set_id = models.CharField(max_length=50, default="")
     set_name = models.CharField(max_length=50, default="")
     name = models.CharField(max_length=50, default="")
-    height = models.IntegerField(default=2)
-    width = models.IntegerField(default=2)
+    height = models.IntegerField(default=1)
+    width = models.IntegerField(default=1)
     template = models.CharField(max_length=255, default="")
 
-class WidgetParameter(models.Model):
-    id = models.AutoField(primary_key=True)
+class WidgetOption(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
     widget = models.ForeignKey(Widget)
     key = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
@@ -27,9 +27,10 @@ class WidgetParameter(models.Model):
     type = models.CharField(max_length=50)
     default = models.CharField(max_length=50, blank=True)
     description = models.CharField(max_length=255)
-
-class WidgetSensorParameter(models.Model):
-    id = models.AutoField(primary_key=True)
+    options = models.TextField(null=True, blank=True)
+                
+class WidgetSensor(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
     widget = models.ForeignKey(Widget)
     key = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
@@ -41,8 +42,8 @@ class WidgetSensorParameter(models.Model):
     def types_as_list(self):
         return self.types.split(', ')
 
-class WidgetCommandParameter(models.Model):
-    id = models.AutoField(primary_key=True)
+class WidgetCommand(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
     widget = models.ForeignKey(Widget)
     key = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
@@ -68,6 +69,9 @@ class PageTheme(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     label = models.CharField(max_length=50)
 
+    def __unicode__(self):
+        return self.label
+    
 class PageIcon(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     iconset_id = models.CharField(max_length=50)
@@ -362,32 +366,36 @@ class Sensor(RestModel):
     datatype = models.ForeignKey(DataType, on_delete=models.DO_NOTHING)
     last_value = models.CharField(max_length=50)
     last_received = models.CharField(max_length=50)
-
+    
+    def __unicode__(self):
+        return self.name
+    
 class WidgetInstance(models.Model):
     id = models.AutoField(primary_key=True)
     page = models.ForeignKey(Page)
     row = models.IntegerField(default=0)
     col = models.IntegerField(default=0)
     widget = models.ForeignKey(Widget, on_delete=models.DO_NOTHING)
-
+    configured = models.BooleanField(default=False)
+    
     @classmethod
     def get_page_list(cls, id):
         return cls.objects.filter(page__id=id).order_by('order')
 
-class WidgetInstanceParam(models.Model):
+class WidgetInstanceOption(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
-    value = models.CharField(max_length=50)
+    parameter = models.ForeignKey(WidgetOption, on_delete=models.DO_NOTHING)
+    value = models.TextField(null=True, blank=True)
 
 class WidgetInstanceSensor(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
+    parameter = models.ForeignKey(WidgetSensor, on_delete=models.DO_NOTHING)
     sensor = models.ForeignKey(Sensor, on_delete=models.DO_NOTHING)
 
 class WidgetInstanceCommand(models.Model):
     id = models.AutoField(primary_key=True)
     instance = models.ForeignKey(WidgetInstance)
-    key = models.CharField(max_length=50)
+    parameter = models.ForeignKey(WidgetCommand, on_delete=models.DO_NOTHING)
     command = models.ForeignKey(Command, on_delete=models.DO_NOTHING)

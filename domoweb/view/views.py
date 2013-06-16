@@ -35,40 +35,18 @@ Implements
 """
 
 import simplejson as json
+import django
 from django.utils.http import urlquote
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, redirect
-from django.template import RequestContext, Context, Template
+from django.template import RequestContext, Context
 from django.utils.translation import ugettext as _
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 
 from domoweb.utils import *
 from domoweb.rinor.pipes import *
-from domoweb.models import Widget, WidgetParameter, PageIcon, WidgetInstance, WidgetInstanceParam, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, Device, Sensor, Command
-from domoweb import fields
-from domoweb.forms import ParametersForm
-    
-class ThemeChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.label
-    
-# Page configuration form
-class PageForm(forms.Form):
-    name = forms.CharField(max_length=50, label=_("Page name"), widget=forms.TextInput(attrs={'class':'icon32-form-tag'}), required=True)
-    description = forms.CharField(label=_("Page description"), widget=forms.Textarea(attrs={'class':'icon32-form-edit'}), required=False)
-    icon = fields.IconChoiceField(label=_("Choose the icon"), required=False, empty_label="No icon", queryset=PageIcon.objects.all())
-    theme = ThemeChoiceField(label=_("Choose a theme"), required=False, empty_label="No theme", queryset=PageTheme.objects.all())
-
-"""    
-    def clean(self):
-        cd = self.cleaned_data
-        if cd['icon']:
-            cd['icon'] = cd['icon_id'].id
-        else:
-            cd['icon'] = ''
-        return cd
-"""
+from domoweb.models import Widget, WidgetOption, PageIcon, WidgetInstance, WidgetInstanceOption, WidgetInstanceSensor, WidgetInstanceCommand, PageTheme, DeviceType, Device, Sensor, Command
+from domoweb.forms import WidgetInstanceForms, PageForm
 
 def page(request, id=1):
     """
@@ -140,36 +118,46 @@ def page_elements(request, id):
     @param request : HTTP request
     @return an HttpResponse object
     """
-
+    
     page = Page.objects.get(id=id)
     page_title = "%s %s" % (page.name, _("Widgets"))
 
     iconsets = PageIcon.objects.values('iconset_id', 'iconset_name').distinct()
-
+    
+    devices = Device.objects.all()
+        
     if request.method == 'POST': # If the form has been submitted...
         instances = json.loads(request.POST['widgetsplacement'])
-#        instances = getDictArray(request.POST, 'instance')
         keys = []
         for instance in instances:
             try:
                 keys.append(int(instance['instanceid'])) # Convert to int and remove new instances
             except ValueError:
                 pass
-        widgetinstances = WidgetInstance.objects.filter(page_id=id).exclude(id__in=keys).delete()
+        WidgetInstance.objects.filter(page_id=id).exclude(id__in=keys).delete()
+
         for instance in instances:
-            print instance
-            if 'widgetid' in instance:
+            iid = instance['instanceid']
+            if 'widgetid' in instance: # New instance
                 w = WidgetInstance(page=page, widget_id=instance['widgetid'], row=instance['row'], col=instance['col'])
-            else:
-                w = WidgetInstance.objects.get(id=instance['instanceid'])
+                w.save()
+                form = WidgetInstanceForms(devices, w.widget, tmpid=iid)
+            else: # Existing
+                w = WidgetInstance.objects.get(id=iid)
                 w.row=instance['row']
                 w.col=instance['col']
+                w.save()
+                form = WidgetInstanceForms(devices, w.widget, instance=w)
+            form.setData(request.POST)
+            w.configured = form.save(w)
             w.save()
-        return redirect('page_view', id=id) # Redirect after POST
+        return redirect('page_elements_view', id=id) # Redirect after POST
+
+    widgetinstances = WidgetInstance.objects.filter(page_id = id)
+    for instance in widgetinstances:
+        instance.forms = WidgetInstanceForms(devices, instance.widget, instance)
 
     widgets = Widget.objects.all()
-    widgetinstances = WidgetInstance.objects.filter(page_id = id)
-    devices = Device.objects.all()
     
     return go_to_page(
         request, 'elements.html',
@@ -178,49 +166,29 @@ def page_elements(request, id):
         iconsets=iconsets,
         widgets=widgets,
         widgetinstances=widgetinstances,
-        devices=devices,
     )
 
-@admin_required
+#@admin_required
 def page_elements_widgetparams(request, instanceid, widgetid):
-    w = Widget.objects.get(id=widgetid)
-    t = Template("<div class='row'>Test</div>")
-    c = Context({'instanceid': instanceid})
+    from django.template.loader import get_template
+    widget = Widget.objects.get(id=widgetid)
+    devices = Device.objects.all()
+    status=200
+    try:
+        instanceid = int(instanceid)
+    except ValueError:
+        forms = WidgetInstanceForms(devices, widget=widget, tmpid=instanceid)
+    else:
+        instance = WidgetInstance.objects.get(id=instanceid)
+        forms = WidgetInstanceForms(devices, widget=widget, instance=instance)
+
+    if request.method == 'POST': # If the form has been submitted...
+        forms.setData(request.POST)
+        forms.validate()
+        if not forms.is_valid():
+            status=210
+    
+    t = get_template('widget_parameters.html')
+    c = Context({'forms': forms})
     html = t.render(c)
-    return HttpResponse(html)
-
-@admin_required
-def page_widget_configure(request, id):
-    instance = WidgetInstance.objects.get(id=id)
-    page_title = "Configure %s widget" % (instance.widget.name)
-
-    parametersform = ParametersForm(auto_id='param_%s')
-    widgetparameters = WidgetParameter.objects.filter(widget_id=instance.widget_id)    
-    for parameter in widgetparameters:
-        try:
-            wip = WidgetInstanceParameter.objects.get(instance_id=id, key=parameter.key)
-        except ObjectDoesNotExist:
-            parametersform.addField(parameter=parameter)
-        else:
-            parametersform.addField(parameter=parameter, value=wip.value)
-
-    if request.method == 'POST':
-        valid = True
-        if parametersform:
-            parametersform.setData(request.POST)
-            parametersform.validate()
-            valid = valid and parametersform.is_valid()
-        if valid:
-            WidgetInstanceParameter.objects.filter(instance_id=id).delete()
-            cd = parametersform.cleaned_data
-            for parameter in widgetparameters:
-                p = WidgetInstanceParameter(instance_id=id, key=parameter.key, value=cd[parameter.key])
-                p.save()
-            return redirect('page_elements_view', id=instance.page_id) # Redirect after POST
-
-    return go_to_page(
-        request, 'widget_configure.html',
-        page_title,
-        widget=instance,
-        parametersform=parametersform,
-    )
+    return HttpResponse(html, status=status)
