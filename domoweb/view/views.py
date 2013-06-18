@@ -167,10 +167,11 @@ def page_elements(request, id):
     )
 
 #@admin_required
-def page_elements_widgetparams(request, instanceid, widgetid):
+def page_elements_widgetparameters(request, instanceid, widgetid):
     from django.template.loader import get_template
     widget = Widget.objects.get(id=widgetid)
     status=200
+    modal=True
     try:
         instanceid = int(instanceid)
     except ValueError:
@@ -184,8 +185,19 @@ def page_elements_widgetparams(request, instanceid, widgetid):
         forms.validate()
         if not forms.is_valid():
             status=210
+            modal=False
     
     t = get_template('widget_parameters.html')
-    c = Context({'forms': forms})
+    c = Context({'forms': forms, 'widget': widget, 'instanceid': instanceid, 'modal': modal})
     html = t.render(c)
     return HttpResponse(html, status=status)
+
+#@admin_required
+def page_elements_widgetelement(request, instanceid, widgetid):
+    from django.template.loader import get_template
+    widget = Widget.objects.get(id=widgetid)
+    
+    t = get_template('widget_element.html')
+    c = Context({'widget': widget, 'instanceid': instanceid})
+    html = t.render(c)
+    return HttpResponse(html)

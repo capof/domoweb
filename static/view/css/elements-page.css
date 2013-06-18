@@ -47,12 +47,7 @@ table.parameters td.input {
 
 table.parameters td {
     padding: 0.2em 1em 0.2em 1em;
-    border-bottom: 1px solid #67a8d2;
-}
-
-table.parameters th {
-    padding: 0.2em;
-    border-bottom: 1px solid #67a8d2;
+    border-bottom: 1px solid #41434A;
 }
 
 table.parameters label {
@@ -67,13 +62,13 @@ table.parameters label.required {
 table.parameters label.required:after { content:" *"; }
 
 table.parameters .odd td {
-    background-color: #f6f0f6;
-    color: #404040;
+    background-color: #877963;
+    color: #F2F1E9;
 }
 
 table.parameters .even td {
-    background-color: #cac4c9;
-    color: #404040;
+    background-color: #F2F1E9;
+    color: #41434A;
 }
 
 table.parameters .description {

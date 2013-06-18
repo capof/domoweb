@@ -14,7 +14,7 @@
 #simplemodal-overlay {background-color:#000;}
 
 /* Container */
-#simplemodal-container {height:360px; width:600px; color:#f3f3f3; background-color:#3C3C3C; border:5px solid rgba(156, 154, 158, 0.5); padding:12px;
+#simplemodal-container {height:360px; width:600px; color:#41434A; background-color:#DEDCC3; border:5px solid rgba(242, 241, 233, 0.5); padding:0.5em;
     -webkit-border-radius: 0.8em;
     -moz-border-radius: 0.8em;
     border-radius: 0.8em;
@@ -23,8 +23,8 @@
     background-clip: padding-box;
 }
 #simplemodal-container.validation_errors {border:5px solid rgba(158, 15, 31, 0.5);}
-#simplemodal-container .simplemodal-data {padding:8px;}
+#simplemodal-container .simplemodal-data {padding:0.5em}
 #simplemodal-container code {background:#141414; border-left:3px solid #65B43D; color:#bbb; display:block; font-size:12px; margin-bottom:12px; padding:4px 6px 6px;}
-#simplemodal-container a {color:#ddd;}
+#simplemodal-container a {color:#41434A;}
 #simplemodal-container a.modalCloseImg {background:url(../images/action/close_36.png) no-repeat; width:36px; height:36px; display:inline; z-index:3200; position:absolute; top:-15px; right:-16px; cursor:pointer;}
-#simplemodal-container h3 {color:#6891ac;}
+#simplemodal-container h3 {color:#41434A;}

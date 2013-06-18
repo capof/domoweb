@@ -1,0 +1,6 @@
+{% load i18n %}
+<div role='listitem' id='widgetinstance_{{ instanceid }}' class='widgetinstance{% if not configured %} not_configured{% endif %}' data-instanceid='{{ instanceid }}' data-row="{{ row }}" data-col="{{ col }}" data-sizex="1" data-sizey="1">
+    {{ widget.name }}
+    <button class='conf_widget' data-instanceid="{{ instanceid }}" data-widgetid='{{ widget.id }}' data-widgetname='{{ widget.name }}'>{% trans "Configure" %}</button>
+    <button class='del_widget' data-instanceid="{{ instanceid }}">{% trans "Remove" %}</button>
+</div>

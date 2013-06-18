@@ -45,9 +45,9 @@ $(function() {
 					$.ajax({
 						type:"POST",
 						data: $("#simplemodal-container :input").serialize(),
-						url:VIEW_URL + "/elements/widgetparams/" + instanceid + "/" + widgetid, 
+						url:VIEW_URL + "/elements/widgetparameters/" + instanceid + "/" + widgetid, 
 						success: function(data, textStatus, jqXHR){
-							$('#configinstance_' + instanceid + ' .widget_parameters').html(data);
+							$('.simplemodal-wrap').html(data);
 							$('#configinstance_' + instanceid + ' .widget_parameters input[type=text].mask').maskInput();
 
 							if (jqXHR.status==210) { // Validation error
@@ -77,27 +77,25 @@ $(function() {
 	});
 	
     $("#widgetslist").on("click", ".add_widget", function () {
+        $.modal.close();
         var widgetid = $(this).data("widgetid");
+        var widgetname = $(this).data("widgetname");
         var width = $(this).data("width");
         var height = $(this).data("height");
 
         var randomnumber=Math.floor(Math.random()*10001)
         var id = 'n' + randomnumber;
-		gridster.add_widget("<div id='widgetinstance_" + id + "' class='widgetinstance gs_w not_configured'"
-							+ "data-instanceid='" + id + "' data-widgetid='" + widgetid + "'>"
-							+ widgetid
-							+ "<button class='conf_widget' data-instanceid=" + id + " data-widgetid='" + widgetid + "'>" + gettext('Configure') + "</button>"
-							+ "<button class='del_widget' data-instanceid=" + id + ">" + gettext('Remove') + "</button>"
-							, width, height);
-		
-        $('#widgetsconfig').append("<div id='configinstance_" + id + "' style='display: none'> \
-            <h2>Widget " + id + " parameters</h2> \
-            <div class='widget_parameters'></div> \
-            </div>");
-
-        $('#configinstance_' + id + ' .widget_parameters').load(VIEW_URL + "/elements/widgetparams/" + id + "/" + widgetid, function() {
-			$('#configinstance_' + id + ' .widget_parameters input[type=text].mask').maskInput();
+		$.ajax({
+			url: VIEW_URL + "/elements/widgetelement/" + id + "/" + widgetid,
+		}).done(function( html ) {
+			gridster.add_widget(html, width, height);
+			$.ajax({
+				url: VIEW_URL + "/elements/widgetparameters/" + id + "/" + widgetid,
+			}).done(function( html ) {
+				$('#widgetsconfig').append(html);
+				$('#configinstance_' + id + ' .widget_parameters input[type=text].mask').maskInput();
+			});
 		});
-        $.modal.close();
+
     });	
 });

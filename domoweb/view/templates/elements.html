@@ -69,25 +69,17 @@
             <input type='hidden' id='widgetsplacement' name='widgetsplacement' value='' />
             <section id='widgetsconfig'>
                 {% for instance in widgetinstances %}
-                    <div id='configinstance_{{ instance.id }}' class="modal widgetconfig">
-                        <h2>Widget {{ instance.widget_id }} parameters</h2>
-                        <a href='#' class='force_close' data-instanceid="{{ instance.id }}">Force close</a>
-                        <div class='widget_parameters'>
-                            {% with forms=instance.forms %}
-                            {% include 'widget_parameters.html'%}
-                            {% endwith %}
-                        </div>
-                    </div>
+                    {% with forms=instance.forms widget=instance.widget instanceid=instance.id modal=True %}
+                    {% include 'widget_parameters.html'%}
+                    {% endwith %}
                 {% endfor %}
             </section>
         </form>
         <div id='widgetsmatrix' role="list">
             {% for instance in widgetinstances %}
-                <div role='listitem' id='widgetinstance_{{ instance.id }}' class='widgetinstance{% if not instance.configured %} not_configured{% endif %}' data-instanceid='{{ instance.id }}' data-row="{{ instance.row }}" data-col="{{ instance.col }}" data-sizex="1" data-sizey="1">
-                    {{ instance.widget_id }}
-                    <button class='conf_widget' data-instanceid="{{ instance.id }}" data-widgetid='{{ instance.widget.id }}'>{% trans "Configure" %}</button>
-                    <button class='del_widget' data-instanceid="{{ instance.id }}">{% trans "Remove" %}</button>
-                </div>
+                {% with widget=instance.widget instanceid=instance.id configured=instance.configured row=instance.row col=instance.col %}
+                {% include 'widget_element.html'%}
+                {% endwith %}
             {% endfor %}
         </div>
         <div id="widgetslist" class="modal">
